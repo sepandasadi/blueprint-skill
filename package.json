@@ -1,0 +1,22 @@
+{
+  "name": "blueprint-skill",
+  "version": "0.1.0",
+  "description": "Blueprint: a cross-IDE AI agent skill (Claude Code, Codex, Cursor, Antigravity, VS Code Copilot) that interviews you in detail, validates requirements against system design and testing, writes a plan, reviews it for bugs, performance and security, gets your approval, splits it into parallel implementation plans and builds them.",
+  "keywords": [
+    "agent-skills", "skill", "SKILL.md", "claude-code", "codex", "cursor", "antigravity", "github-copilot",
+    "ai-coding", "spec-driven-development", "planning", "requirements", "system-design", "code-review",
+    "security-review", "parallel-agents", "multi-agent", "agentskills", "vibe-coding", "ai-agent"
+  ],
+  "homepage": "https://github.com/sepandasadi/blueprint-skill#readme",
+  "repository": { "type": "git", "url": "git+https://github.com/sepandasadi/blueprint-skill.git" },
+  "bugs": { "url": "https://github.com/sepandasadi/blueprint-skill/issues" },
+  "license": "MIT",
+  "author": "Sepand Asadi",
+  "bin": { "blueprint-skill": "bin/blueprint-skill.js" },
+  "files": ["bin/", "blueprint/", "README.md", "LICENSE"],
+  "engines": { "node": ">=18" },
+  "scripts": {
+    "test": "node bin/blueprint-skill.js --dry-run --all && bash install.sh --dry-run --all",
+    "doctor": "node bin/blueprint-skill.js doctor"
+  }
+}

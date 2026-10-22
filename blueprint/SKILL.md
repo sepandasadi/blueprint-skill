@@ -1,0 +1,171 @@
+---
+name: blueprint
+description: Use when the user asks to build a new app, product, or non-trivial feature and its requirements, architecture, or test plan are not yet written down — before writing any code. Also use to resume work that has a docs/plans/<date>-<feature>/ folder. Works in Claude Code, Codex, Cursor, Antigravity and VS Code Copilot.
+---
+
+# Blueprint
+
+Turns "build me X" into approved, reviewed, parallel-ready implementation plans before a single line of product code exists. Interview in detail, validate the answers against each other, plan, review the plan for bugs / performance / security, get approval, split into implementation plans, review those, get approval, then build.
+
+**Iron rule: no product code before Gate 2.** Violating the letter of this rule is violating its spirit. Reading, recon, and writing the planning artifacts are always allowed; scaffolding, installing dependencies, and editing source files are not.
+
+**Two modes.** *Advanced* runs every step in full. *Simple* keeps every phase and both gates but collapses the interview into one batch, runs one combined review pass, and defaults to fewer implementation plans. Simple takes the decisions for you; it never skips a gate.
+
+## Phase 0 — Setup
+
+1. **Detect the harness** from your tool list (`references/harness-map.md`). Record it as a Ruling later.
+2. **Pick the mode.** Use the mode the user named (`/blueprint simple …`, "advanced mode", …) or the `mode:` default in `docs/plans/CONSTITUTION.md`. Otherwise ask one question and wait:
+   > Simple or advanced? Recommended: **advanced** for a new app, or anything touching money, auth, personal data, or more than ~5 files; **simple** for a contained feature in an existing codebase.
+3. **Recon before any question.** Read manifests, lockfiles, directory layout, existing docs, tests, CI config, and recent git log. Checklists are in `references/interview-design.md` and `interview-testing.md`. Never ask what the repository can answer; say what you found instead.
+4. **Constitution.** If `docs/plans/CONSTITUTION.md` exists, read it; its MUST/SHOULD principles are checked in Phase 2 and Phase 4. If it does not exist, skip silently.
+5. **Artifact folder.** `docs/plans/<YYYY-MM-DD>-<feature-slug>/` (slug: 2–4 words, lowercase, hyphens). If it already exists, go to **Resume** below.
+6. Create the four track files from `references/templates.md` with status `draft`.
+
+## Phase 1 — Interview
+
+Rules for every batch are in `references/interview-requirements.md` (batch rules). The short version:
+
+- Open with **2–3 interpretations** of the request; the user picks or corrects.
+- Each question has three lines: the question, **Why it matters**, **Recommended**.
+- Accept answers per number, `all defaults`, `all defaults except …`, or free text. Unanswered → Recommended value, tagged `[inferred]`.
+- **Record immediately** after each reply: `R-`/`D-`/`T-` entries with `Decision / Grounds / Reopen if`, plus the dated `## Clarifications` Q→A log.
+- Trim priority: scope > security/privacy > UX > technical. Trimmed → `## Assumptions`.
+
+| | Advanced | Simple |
+|---|---|---|
+| Batches | three, in order: requirements → design → testing, 8–15 questions each | one combined batch of 10–15 questions (5–7 requirements, 3–5 design, 2–3 testing) |
+| Design batch opener | a 5–8 line proposed architecture from recon | one-line architecture sketch |
+| Testing batch opener | coverage proposal table `R → test level` | included in the batch as one question |
+| Follow-up rounds | ≤ 2 per track | ≤ 1 total |
+| Everything not asked | asked | Recommended default, `[inferred]` |
+
+Question banks: `references/interview-requirements.md`, `references/interview-design.md`, `references/interview-testing.md`. Each has a "Simple-mode selection" section naming which questions survive the merge.
+
+Time pressure from the user ("just start", "I know what I want", "by end of day") changes nothing here except the mode recommendation. The batch is the fastest honest path to the demo; say so in one line and ask it.
+
+## Phase 2 — Validate
+
+Follow `references/validation.md`:
+
+1. Build the **traceability matrix** in `plan.md`: every R → ≥1 D and ≥1 T; every D and T → ≥1 R.
+2. Run the **six passes**: duplication, ambiguity, underspecification, constitution alignment, coverage gaps, inconsistency. Inconsistency is where answers that cannot all be true get caught (end-to-end encryption vs server-side search; "never store X" vs "show X instantly offline"; "just the basics" vs a long extras list).
+3. Route by severity: CRITICAL → ask the user now (both modes). HIGH → ask (advanced) or fix with the recommended default and list at Gate 1 (simple). MEDIUM/LOW → fix, tag `[inferred]`.
+4. Loop until no CRITICAL/HIGH, at most 3 cycles; then stop and ask.
+
+Set every track file's status to `validated`.
+
+## Phase 3 — Plan
+
+Write `plan.md` from `references/templates.md`. Non-negotiable parts:
+
+- Header `mode:` and `quiz:` (quiz is `off` unless the user asked or the constitution sets it).
+- **Global constraints** every task obeys; **Review focus**: the 5 failure modes most likely to reach users that tests may miss.
+- **Ambiguities (must be empty to proceed)** — anything a builder could read two ways goes here first, then gets resolved.
+- **Constitution check** + **Complexity tracking** rows for every justified SHOULD violation (only when a constitution exists).
+- **Tasks** as `W### [P]? [IDs] description — path`, grouped **Parallel group / Sequential chain (depends on …) / Independent**, with Interfaces (consumes / produces) where tasks touch each other. `[P]` only when the task shares no file with another unfinished task and depends on nothing unfinished.
+- **Critical path**, **Review log**, **Rulings**.
+
+Every W cites an R, D or T. Every R appears in at least one W.
+
+## Phase 4 — Plan review
+
+Reviewer setup and checklists: `references/review-checklists.md`.
+
+| | Advanced | Simple |
+|---|---|---|
+| Reviewer | fresh-context subagent (most capable tier); stance switch if no subagents | stance switch |
+| Passes | Bugs, Performance, Security (STRIDE-lite table per trust boundary) — run separately | one combined pass over all three checklists |
+| Builder check | yes: a second fresh reader lists questions whose answers would change the build → answered / minor (Ruling) / user's (one batched round) | no |
+| Cycles | fix CRITICAL/HIGH in place, re-run that pass, `Cycle N of 3` in Review log | one cycle; remaining HIGH items listed at Gate 1 |
+
+A stance-switch review re-reads every artifact from disk and ends with a `What was checked:` line. Without that line it did not happen.
+
+## Gate 1 — approve the plan
+
+1. Run the **pre-gate self-check** (`references/validation.md`): no placeholders, Ambiguities empty, no scope creep, matrix complete. Say `Self-check: passed`.
+2. Show: the folder path, a ≤15-line summary (goal, architecture, task count, critical path, review focus), every `Ruling:`, and in simple mode the `[inferred]` HIGH fixes.
+3. If `quiz: on`, ask two A–D questions about decisions the user made; a wrong answer gets one re-explanation and one re-ask.
+4. Ask **one** question: "Approve the plan, or change something?" and **wait**. Approval is an explicit affirmative. "Yes, but change X" → apply X, re-run only the review pass it touches (counts as a cycle), show what changed, ask again.
+
+Nothing below this line runs without that affirmative.
+
+## Phase 5 — Split into implementation plans
+
+Rules: `references/parallel-execution.md › Splitting rules`.
+
+- Partition by **file ownership**: every file in exactly one `impl-NN.md › Owns`. Shared types, helpers, migrations go to the earliest plan that needs them.
+- Count: advanced 2–4; simple 1–2. One plan is allowed when the feature is small; say so.
+- Fill the **pre-flight conflict table** in `plan.md`: every shared file or interface, the plans involved, the frozen contract. State explicitly when it is empty.
+- Each `impl-NN.md` (template in `references/templates.md`): Scope · Owns · Depends on (exact `impl-NN W###`) · Interfaces · Ambiguities (must be empty) · Tasks as TDD steps with `Expected:` output · Verification commands · **Review log** · **Progress log**.
+
+## Phase 6 — Deep review of implementation plans
+
+Same reviewer setup as Phase 4, plus the Phase 6 additions in `references/review-checklists.md`:
+
+- **Bugs, Performance, Security** again, now against concrete tasks and file paths.
+- **DRY across plans** — the same helper, type, fixture or migration planned twice is moved to the first plan and consumed through the conflict table.
+- **Docs** — every new public surface has a documentation task.
+- **No refactor needed** — would the result need restructuring immediately? Fix the plan now.
+- **Coverage verdicts** per R-ID across all plans: `Satisfied / Partial / Gap / Conflict`; Partial counts as Gap; any Gap or Conflict blocks Gate 2.
+- **Ownership** — no file in two plans, no dependency cycle.
+
+Advanced: three passes, fresh context, up to 3 cycles, findings in each plan's Review log. Simple: one combined pass, one cycle.
+
+## Gate 2 — approve the implementation plans
+
+1. Pre-gate self-check again (now including: every file owned once, conflict table filled, every impl plan's Ambiguities empty).
+2. Show: number of plans, each plan's scope line and file count, the dependency order, which plans can run in parallel on this harness, the coverage verdict table, new Rulings.
+3. Confirm the **branch choice**: current branch (default) or a worktree per implementer if the harness offers worktrees.
+4. If `quiz: on`, two more A–D questions.
+5. Ask one question — "Approve and start implementing?" — and wait for an explicit affirmative. Simple mode may compress steps 2–3 into five lines; it may not skip the question.
+
+## Phase 7 — Implement
+
+Everything here follows `references/parallel-execution.md`; tool names per harness are in `references/harness-map.md`.
+
+1. **Dispatch.** With concurrent subagents (Claude Code, Codex): one implementer per plan whose dependencies are complete, **all in one message**, standard model tier, brief from `parallel-execution.md › Dispatch` (impl-plan path, Owns boundary, ledger after every task, never commit). Sequential-only harnesses: same brief, one at a time. No subagents: you are each implementer in turn, announcing `Acting as implementer-NN`.
+2. **Ledger.** Every task ends with a Progress log line (`W### complete (files, tests: cmd → result)`); blockers get `BLOCKED` or `NEEDS_CONTEXT`; decisions get `Ruling: … — why — cost if wrong`.
+3. **Per plan, when it reports:** multi-touched-file check (`git status` paths ⊆ that plan's Owns, else `DRIFT`), run its Verification block, commit only its files with the user's git identity. Implementers never commit; nothing is pushed.
+4. **Unblocked plans** are dispatched as soon as their dependency lines are `complete`.
+5. **After all plans:** full test suite; **convergence pass** — open the code for every R-ID and record `satisfied / missing / partial / contradicts` with file evidence, plus every `unrequested` change, appended to `plan.md › Convergence`; checkbox state is a claim, not evidence. Fix loop through the owning plan, at most 3 passes.
+6. **Final report:** per-requirement grade (answered / partial / unresolved), every Ruling verbatim, commits, test output, anything `DONE_WITH_CONCERNS`.
+
+Simple mode runs the same steps; it only differs in how many plans exist and that review passes were combined.
+
+## Resume
+
+When the artifact folder exists or the user says "continue":
+
+1. Read `plan.md` status and every Progress log. **Trust the decisions**; do not re-interview or reopen Rulings.
+2. **Re-verify facts:** `git status`, `git log` since the last ledger timestamp, each in-progress plan's Verification block.
+3. Anything changed outside the ledger, or a test that no longer passes → `DRIFT` line with what you found.
+4. Continue from the first task not `complete` in the first plan whose dependencies are complete; never touch another plan's Owns.
+5. If status is before `approved`, resume that phase; gates still apply.
+
+## Red flags — stop and re-read the phase you are in
+
+| Thought | Reality |
+|---|---|
+| "It's ~150 lines in a 4-file app, no docs needed." | Size does not change the rule. Simple mode exists for this; Gate 1 still does. |
+| "They said 'keep it simple' / 'just start', so skip the batch." | The batch *is* the fast path. One batch, recommended defaults, then build. |
+| "No objection to my defaults = approval." | Approval is an explicit affirmative to the gate question. A clarification is not one. |
+| "Another round of questions would just be seeking cover." | A follow-up exists only for vague, contradictory or untestable answers. If one of those is present, ask. |
+| "The reviewer found nothing, so Gate 2 is a formality." | Gate 2 is where the user chooses the branch and sees the coverage verdicts. Ask. |
+| "I'll write the plan after the first commit so it reflects reality." | A plan written after code is a changelog. Gate 2 comes first. |
+| "Subagents aren't available, so skip the review." | Stance switch: re-read from disk, end with `What was checked:`. |
+| "The checkboxes are all ticked, so we're done." | Checkboxes are claims. Convergence opens the code. |
+| "I remember what the plan said." | Resume re-reads the ledger and re-runs the verification. Memory drifts. |
+| "This answer contradicts an earlier one, but they probably meant…" | Show both verbatim and ask which wins. Record the loser's `Reopen if`. |
+
+## Read only the relevant guide
+
+| File | Read when |
+|---|---|
+| `references/templates.md` | creating or filling any artifact; ledger format |
+| `references/interview-requirements.md` | Phase 1 batch rules, interpretations, requirement question bank |
+| `references/interview-design.md` | design recon checklist and question bank |
+| `references/interview-testing.md` | testing recon checklist and question bank |
+| `references/validation.md` | Phase 2 passes, severities, pre-gate self-check |
+| `references/review-checklists.md` | Phases 4 and 6, builder check, convergence |
+| `references/parallel-execution.md` | Phase 5 splitting, Phase 7 dispatch and commits, Resume |
+| `references/harness-map.md` | which tool performs an action on this harness; model tiers; gate mechanics |

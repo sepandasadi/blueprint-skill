@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 420" width="1200" height="420" role="img" aria-label="Blueprint workflow: interview, validate, plan, review, gate 1, split, deep review, gate 2, parallel build, converge">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0f172a"/><stop offset="1" stop-color="#1e293b"/></linearGradient>
+    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#94a3b8"/></marker>
+    <style>
+      .box{fill:#1e293b;stroke:#334155;stroke-width:1.5;rx:12}
+      .hot{fill:#172554;stroke:#3b82f6}
+      .gate{fill:#3f1d1d;stroke:#f87171;stroke-width:2}
+      .t{font:600 16px -apple-system,Segoe UI,Inter,sans-serif;fill:#f8fafc}
+      .s{font:400 12px -apple-system,Segoe UI,Inter,sans-serif;fill:#cbd5e1}
+      .n{font:700 11px -apple-system,Segoe UI,Inter,sans-serif;fill:#60a5fa;letter-spacing:.08em}
+      .l{stroke:#94a3b8;stroke-width:1.5;fill:none;marker-end:url(#arr)}
+    </style>
+  </defs>
+  <rect width="1200" height="420" fill="url(#bg)" rx="18"/>
+  <text x="40" y="48" class="t" style="font-size:22px">How <tspan fill="#60a5fa">blueprint</tspan> turns "build me X" into shipped code</text>
+  <text x="40" y="72" class="s">Nothing is built before both gates are approved. Every phase writes a file you can read, diff and resume from.</text>
+
+  <!-- row 1 -->
+  <g transform="translate(40,110)">
+    <rect class="box" width="200" height="90"/><text x="16" y="22" class="n">PHASE 1</text><text x="16" y="46" class="t">Interview</text><text x="16" y="68" class="s">3 tracks · batches of 8–15 · recommended defaults</text>
+  </g>
+  <path class="l" d="M240,155 H268"/>
+  <g transform="translate(270,110)">
+    <rect class="box" width="200" height="90"/><text x="16" y="22" class="n">PHASE 2</text><text x="16" y="46" class="t">Validate</text><text x="16" y="68" class="s">R ↔ D ↔ T traceability · 6 consistency passes</text>
+  </g>
+  <path class="l" d="M470,155 H498"/>
+  <g transform="translate(500,110)">
+    <rect class="box" width="200" height="90"/><text x="16" y="22" class="n">PHASE 3</text><text x="16" y="46" class="t">Plan</text><text x="16" y="68" class="s">tasks W### [P] · critical path · rulings</text>
+  </g>
+  <path class="l" d="M700,155 H728"/>
+  <g transform="translate(730,110)">
+    <rect class="box hot" width="200" height="90"/><text x="16" y="22" class="n">PHASE 4</text><text x="16" y="46" class="t">Review the plan</text><text x="16" y="68" class="s">bugs · performance · security (STRIDE)</text>
+  </g>
+  <path class="l" d="M930,155 H958"/>
+  <g transform="translate(960,110)">
+    <rect class="gate" width="200" height="90"/><text x="16" y="22" class="n" fill="#fca5a5">GATE 1</text><text x="16" y="46" class="t">You approve</text><text x="16" y="68" class="s">explicit yes · optional quiz</text>
+  </g>
+
+  <!-- connector down -->
+  <path class="l" d="M1060,200 V232 H140 V258"/>
+
+  <!-- row 2 -->
+  <g transform="translate(40,260)">
+    <rect class="box" width="200" height="90"/><text x="16" y="22" class="n">PHASE 5</text><text x="16" y="46" class="t">Split</text><text x="16" y="68" class="s">2–4 impl plans · file ownership · progress log</text>
+  </g>
+  <path class="l" d="M240,305 H268"/>
+  <g transform="translate(270,260)">
+    <rect class="box hot" width="200" height="90"/><text x="16" y="22" class="n">PHASE 6</text><text x="16" y="46" class="t">Deep review</text><text x="16" y="68" class="s">+ DRY across plans · docs · no refactor</text>
+  </g>
+  <path class="l" d="M470,305 H498"/>
+  <g transform="translate(500,260)">
+    <rect class="gate" width="200" height="90"/><text x="16" y="22" class="n" fill="#fca5a5">GATE 2</text><text x="16" y="46" class="t">You approve</text><text x="16" y="68" class="s">branch choice · coverage verdicts</text>
+  </g>
+  <path class="l" d="M700,305 H728"/>
+  <g transform="translate(730,260)">
+    <rect class="box" width="200" height="90"/><text x="16" y="22" class="n">PHASE 7</text><text x="16" y="46" class="t">Build in parallel</text><text x="16" y="68" class="s">one agent per plan · ledger · orchestrator commits</text>
+  </g>
+  <path class="l" d="M930,305 H958"/>
+  <g transform="translate(960,260)">
+    <rect class="box" width="200" height="90"/><text x="16" y="22" class="n">FINISH</text><text x="16" y="46" class="t">Converge</text><text x="16" y="68" class="s">code vs requirements · claims ≠ evidence</text>
+  </g>
+
+  <text x="40" y="395" class="s">docs/plans/&lt;date&gt;-&lt;feature&gt;/  requirements.md · design.md · testing.md · plan.md · impl-01.md … impl-04.md</text>
+</svg>

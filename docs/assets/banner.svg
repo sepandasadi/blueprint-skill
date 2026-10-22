@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 300" width="1200" height="300" role="img" aria-label="Blueprint — plan first, build in parallel. A skill for every AI coding agent.">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0b1220"/><stop offset="1" stop-color="#1d4ed8"/></linearGradient>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M40 0H0V40" fill="none" stroke="#ffffff" stroke-opacity=".07"/></pattern>
+    <style>
+      .h{font:800 64px -apple-system,Segoe UI,Inter,sans-serif;fill:#f8fafc;letter-spacing:-.02em}
+      .sub{font:500 22px -apple-system,Segoe UI,Inter,sans-serif;fill:#dbeafe}
+      .chip{font:600 13px -apple-system,Segoe UI,Inter,sans-serif;fill:#0b1220}
+    </style>
+  </defs>
+  <rect width="1200" height="300" fill="url(#g)" rx="20"/>
+  <rect width="1200" height="300" fill="url(#grid)" rx="20"/>
+  <g transform="translate(60,70)">
+    <rect width="86" height="86" rx="20" fill="#60a5fa"/>
+    <path d="M22 26h42M22 43h42M22 60h26" stroke="#0b1220" stroke-width="7" stroke-linecap="round"/>
+  </g>
+  <text x="170" y="128" class="h">blueprint</text>
+  <text x="170" y="170" class="sub">Interview → validate → plan → review → approve → build in parallel.</text>
+  <text x="170" y="200" class="sub" fill="#93c5fd">One skill. Every AI coding agent.</text>
+  <g transform="translate(170,228)">
+    <g><rect width="120" height="30" rx="15" fill="#e0f2fe"/><text x="60" y="20" text-anchor="middle" class="chip">Claude Code</text></g>
+    <g transform="translate(130,0)"><rect width="80" height="30" rx="15" fill="#e0f2fe"/><text x="40" y="20" text-anchor="middle" class="chip">Codex</text></g>
+    <g transform="translate(220,0)"><rect width="84" height="30" rx="15" fill="#e0f2fe"/><text x="42" y="20" text-anchor="middle" class="chip">Cursor</text></g>
+    <g transform="translate(314,0)"><rect width="122" height="30" rx="15" fill="#e0f2fe"/><text x="61" y="20" text-anchor="middle" class="chip">Antigravity</text></g>
+    <g transform="translate(446,0)"><rect width="168" height="30" rx="15" fill="#e0f2fe"/><text x="84" y="20" text-anchor="middle" class="chip">VS Code · Copilot</text></g>
+  </g>
+</svg>

@@ -1,0 +1,70 @@
+# Splitting, dispatch, commits, convergence and resume
+
+Covers Phase 5 (split), Phase 7 (implement) and the Resume procedure.
+
+## Contents
+- Splitting rules
+- Pre-flight conflict table
+- Dispatch
+- Commit policy
+- After all plans report
+- Resume procedure
+- Task tracking without a todo tool
+
+## Splitting rules
+
+- Partition by **file ownership**: every file or glob the feature touches belongs to exactly one `impl-NN.md › Owns`. If two plans need the same file, either merge them or move the shared piece into the plan that runs first and freeze its interface.
+- Count: advanced 2–4 plans; simple 1–2. A feature too small to split gets one plan, and you say so at Gate 1.
+- Order plans by dependency; `Depends on` lists the exact `impl-NN W###` that must be `complete` first. No cycles.
+- Each plan must be independently verifiable: its `Verification` block passes on its own files plus already-complete dependencies.
+- Good seams: data layer vs API vs UI vs integration adapter; or one user journey per plan when they share nothing.
+- Shared test helpers, types and migrations go to the earliest plan that needs them.
+
+## Pre-flight conflict table
+
+Before any dispatch, fill `plan.md › Pre-flight conflict table`: one row per interface or file that more than one plan touches or consumes, naming the plans and the frozen contract (signature, schema, route shape). A contract may change later only by a `Ruling:` in `plan.md` and a ledger line in every affected plan. An empty table is fine and must be stated as such.
+
+## Dispatch
+
+Pick one path from the harness detection in `harness-map.md`:
+
+**Concurrent subagents available.** Dispatch one implementer per plan whose dependencies are all complete, all in one message so they start together. The brief is small and complete:
+
+```
+You are implementer-NN. Read <path>/impl-NN.md and only the files it lists under Owns, Depends on and Interfaces.
+Rules: follow the tasks in order, test first; append a ledger line to Progress log after every task
+(format in <path>/impl-NN.md); never edit files outside Owns; never commit; if blocked, write a BLOCKED
+line and stop. Finish with a DONE or DONE_WITH_CONCERNS line and the output of the Verification block.
+Report back: status, ledger tail, verification output.
+```
+
+Model tier: standard for implementers, most capable for reviewers (how to set it is in `harness-map.md`). Wait in bounded stretches; when one reports, dispatch any plan it unblocked.
+
+**Sequential subagents only.** Same brief, one plan at a time in dependency order.
+
+**No subagents.** You are every implementer in turn. Keep the same ledger discipline and the same `Owns` boundaries; announce `Acting as implementer-NN` when you switch plans.
+
+## Commit policy
+
+- Implementers never commit (they say so in their brief). The orchestrator commits.
+- After a plan reports: (1) run the multi-touched-file check — `git status --porcelain` paths must all fall inside that plan's `Owns`, otherwise record a `DRIFT` line and resolve before committing; (2) run the plan's Verification block; (3) commit only that plan's files with the user's git identity, message `feat(<slug>): impl-NN <scope title>` plus a body listing the W-tasks. Nothing is pushed.
+- Worktree mode (only if the harness offers worktrees and the user chose it at Gate 2): each implementer works on its own branch and may commit there; the orchestrator merges in dependency order and runs the checks on the merged tree.
+
+## After all plans report
+
+1. Full test suite and every plan's Verification block on the integrated tree.
+2. Convergence pass (`review-checklists.md › Convergence pass`), appended to `plan.md`. Loop fixes through the owning plan (re-dispatch or do it yourself), at most 3 passes.
+3. Final report to the user: per-requirement grade (answered / partial / unresolved), every `Ruling:` verbatim, commits made, test output, anything `DONE_WITH_CONCERNS`.
+
+## Resume procedure
+
+Triggered when the artifact folder already exists or the user says to continue.
+1. Read `plan.md` status and every `impl-NN.md` Progress log. **Trust the decisions** (Rulings, confirmed entries); do not reopen them.
+2. **Re-verify facts:** `git status`, `git log` since the last ledger timestamp, run each in-progress plan's Verification block.
+3. Any file changed outside the ledger, or a test that no longer passes → write a `DRIFT` line with what you found.
+4. Continue from the first task not marked `complete` in the first plan whose dependencies are complete. Never touch another plan's `Owns`.
+5. If `plan.md` status is before `approved`, resume the phase it stopped in; the gates still apply.
+
+## Task tracking without a todo tool
+
+Where the harness has no task list, the impl plans are the task list: tick `- [ ]` → `- [x]` in `plan.md › Tasks` when the ledger shows `complete`, and keep a short `## Now` line at the top of `plan.md` naming the current plan and task. Re-read it before each step once the conversation gets long.
