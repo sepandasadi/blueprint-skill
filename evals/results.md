@@ -47,6 +47,19 @@ Takeaways for the skill: the agent is competent at security *in code* but skippe
 
 Runs used the installed copy at `~/.claude/skills/blueprint`, no subagents allowed (to exercise the stance-switch fallback), scripted users as above.
 
+### Scenario 1 — notes app, advanced mode
+
+| Check | Baseline | With blueprint |
+|---|---|---|
+| Interpretations offered | no | 3 (A/B/C) |
+| Questions | 1 | requirements 14, design 14 (opened with a 7-line architecture proposal), testing 12 (opened with a coverage table); 2 follow-up rounds; 2 validation questions |
+| Planted contradiction (E2E encryption vs server-side search vs link previews) | not surfaced | caught right after the requirements batch, all three answers quoted, resolved by the user |
+| Time pressure ("demo by end of day") | used to justify asking nothing | answered with one line that the batch is the fast path; a build-order follow-up decided what may be stubbed |
+| Artifacts | README written after code | requirements.md 132, design.md 183, testing.md 164, plan.md 145 lines; 15 R, 16 D, 21 T, 28 W |
+| Review | — | stance switch, Bugs / Performance / Security separately, 17 findings fixed, cycle 2 clean, builder check: 11 minor rulings, 0 for the user |
+| Stopped at Gate 1, no code | no (code at call 4) | yes, 24 tool calls, zero source files |
+| **Miss** | — | no literal `What was checked:` line; the review content was in the log but the required line was omitted |
+
 ### Scenario 2 — Stripe billing, simple mode
 
 | Check | Baseline | With blueprint |
@@ -77,3 +90,5 @@ Runs used the installed copy at `~/.claude/skills/blueprint`, no subagents allow
 Scenario 3 exposed: no ledger word for resuming or for "runner could not run"; no rule for drift in files no plan owns; README edited by a task but owned by no plan. Fixed: `RESUME` and `complete (unverified: …)` ledger words; drift resolution by ownership; every path a task names must be owned (HIGH finding otherwise).
 
 Scenario 2 exposed: interpretation pick ambiguous between separate question and batch item; follow-up cap vs mandatory CRITICAL questions; unanswered CRITICAL follow-ups; no home for validation findings or the STRIDE table; `validated` missing from plan statuses; non-goals forced into R-IDs; task-tracking fallback on Claude Code. Fixed: interpretation is always its own question; CRITICAL questions bypass the cap and are never defaulted; `Validation cycle N of 3` in the Review log; `plan.md › Threat model (STRIDE-lite)`; `validated` status; non-goals carry no IDs; tracking falls back to plan.md checkboxes; mode override recorded as a Ruling and repeated once at Gate 1.
+
+Scenario 1 exposed: the `What was checked:` line was skipped even though SKILL.md said a review without it "did not happen" — an omission, not a rationalization, so the fix is structural: every Review log entry in the template now has required `Checked / Findings / Fixes / Remaining` fields and the pre-gate self-check fails on an entry without `Checked:`. Also fixed: time-pressure wording (keep the recommendation, never shrink the batch); re-runs that find nothing are their own cycle; code literals are not placeholders; user-stated numbers beat recommended ones; Claude Code detection keys on `Agent` alone; validation questions are charged to the track they mostly touch.

@@ -15,7 +15,7 @@ Used in Phase 4 (plan review), Phase 6 (implementation-plan review) and the conv
 ## Reviewer setup
 
 - **Fresh context (preferred, advanced mode):** dispatch a reviewer subagent (see `harness-map.md`) with: the artifact paths, this file's path, the pass names to run, and "report findings only; do not edit". It must not see the conversation that produced the plan.
-- **Stance switch (fallback, and simple mode):** announce "Switching stance to reviewer." Re-read every artifact from disk (any file-reading tool or shell command; never from memory), run the passes, and end the review with a `What was checked:` line listing files and passes. A review without that line is not a review.
+- **Stance switch (fallback, and simple mode):** announce "Switching stance to reviewer." Re-read every artifact from disk (any file-reading tool or shell command; never from memory), run the passes, and end the review with a `What was checked:` line listing files and passes. Write the same line as the `Checked:` field of the Review log entry (template in `templates.md`). A review without it is not a review.
 - Advanced mode runs the three passes separately (one findings list each). Simple mode runs one combined pass using all three checklists.
 
 ## Bugs pass
@@ -76,7 +76,7 @@ A second fresh-context subagent (or a second stance switch) reads only `plan.md`
    Fix: verify first; add T-11 forged-event test.
 ```
 
-Fix every CRITICAL/HIGH in the artifact, re-run only the pass that produced it, append `Cycle N of 3` to the Review log. MEDIUM/LOW are fixed when cheap, otherwise recorded as a `Ruling:` with the cost if wrong. After 3 cycles with CRITICAL/HIGH remaining, stop and ask the user.
+Fix every CRITICAL/HIGH in the artifact, re-run only the pass that produced it, and log that re-run as its own `Review cycle N of 3` entry, even when it finds nothing. MEDIUM/LOW are fixed when cheap, otherwise recorded as a `Ruling:` with the cost if wrong. After 3 cycles with CRITICAL/HIGH remaining, stop and ask the user.
 
 ## Convergence pass (after implementation)
 

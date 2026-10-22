@@ -17,7 +17,7 @@
        Why it matters: decides whether link previews can include content and whether links need expiry.
        Recommended: anyone with the link, read-only, no preview content, link revocable by owner.
    ```
-4. **Answer forms accepted:** per number (`Q4: anyone, with preview`), `all defaults`, `all defaults except …`, or free text. Unanswered numbers take the Recommended value and are tagged `[inferred]`.
+4. **Answer forms accepted:** per number (`Q4: anyone, with preview`), `all defaults`, `all defaults except …`, or free text. Any value the user did not state in their own words — unanswered, "all defaults", "your call" — takes the Recommended value and is tagged `[inferred]`. When the user gives a number different from your Recommended one, theirs wins; if you still need headroom, record it as a Ruling, not as their requirement.
 5. **Trim priority** when the bank yields more than the cap: scope > security/privacy > UX > technical. Trimmed questions become `## Assumptions` entries with their Recommended value, tagged `[inferred]`.
 6. **Record immediately.** After each reply, write the entries to the track file and append `Q → A` lines to `## Clarifications / ### Session <date>` before asking anything else.
 7. **Follow-ups** are a separate, smaller batch (max 2 rounds per track in advanced, 1 in simple) and only for answers that are vague, contradictory, untestable, or that opened a new area. Unanswered follow-ups take the Recommended value and are listed at Gate 1 — except CRITICAL ones (see `validation.md › Severity and routing`), which are never defaulted.

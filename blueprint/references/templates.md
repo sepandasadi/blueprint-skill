@@ -1,6 +1,6 @@
 # Artifact templates
 
-All artifacts live in `docs/plans/<YYYY-MM-DD>-<feature-slug>/` inside the target project. Copy a template verbatim, then fill every `<placeholder>`. Never leave a placeholder in a file you show the user (the pre-gate self-check in `validation.md` fails on any `<…>` left behind).
+All artifacts live in `docs/plans/<YYYY-MM-DD>-<feature-slug>/` inside the target project. Copy a template verbatim, then fill every `<placeholder>`. Never leave a placeholder in a file you show the user (the pre-gate self-check in `validation.md` fails on any template placeholder left behind; angle brackets inside code spans or code blocks, such as `Promise<void>`, are not placeholders).
 
 ## Contents
 - ID scheme
@@ -204,8 +204,17 @@ W001 → W002 → W007 (<estimate in tasks, not hours>)
 |---|---|---|---|---|---|---|
 
 ## Review log
-- Validation cycle 1 of 3 (<YYYY-MM-DD>): <findings> → <fixes>
-- Cycle 1 of 3 (<YYYY-MM-DD>, <reviewer: fresh-context | stance-switch>): <findings> → <fixes>
+<!-- Every entry has all four fields. An entry without "Checked:" is not a review. -->
+- Validation cycle 1 of 3 (<YYYY-MM-DD>)
+  - Checked: <files re-read from disk>; passes: <names>
+  - Findings: <severity counts, then one line each>
+  - Fixes: <what changed, by ID>
+  - Remaining: <none | items carried to the gate>
+- Review cycle 1 of 3 (<YYYY-MM-DD>, <reviewer: fresh-context | stance-switch>)
+  - Checked: <files re-read from disk>; passes: <Bugs, Performance, Security, Builder check>
+  - Findings: …
+  - Fixes: …
+  - Remaining: …
 
 ## Rulings
 - Ruling: <decision> — <why> — <cost if wrong>
@@ -257,7 +266,11 @@ owner: <unassigned | implementer-NN>
 ```
 
 ## Review log
-- Cycle 1 of 3 (<date>, <reviewer>): <findings> → <fixes>
+- Review cycle 1 of 3 (<date>, <reviewer>)
+  - Checked: <files re-read from disk>; passes: <names>
+  - Findings: …
+  - Fixes: …
+  - Remaining: …
 
 ## Progress log
 <ledger lines, newest last — see format below>

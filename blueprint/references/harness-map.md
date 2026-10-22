@@ -14,7 +14,7 @@ The skill body speaks in actions. Resolve each action here for the harness you d
 Look at the tools you actually have, in this order:
 | You have … | Harness |
 |---|---|
-| `Agent`, `AskUserQuestion`, `TodoWrite` or `TaskCreate` | Claude Code |
+| `Agent` (often with `AskUserQuestion`, `TodoWrite` or `TaskCreate`, not always) | Claude Code |
 | `spawn_agent`, `wait_agent` | Codex (multi-agent on) |
 | `invoke_subagent`, `write_to_file` with artifacts | Antigravity |
 | a skill tool and "ask questions" tool but no subagent spawner | Cursor |
@@ -29,7 +29,7 @@ Record the detected harness in `plan.md › Rulings` as `Ruling: harness = <name
 |---|---|---|---|---|---|---|
 | Dispatch a fresh-context reviewer | `Agent` (subagent_type general-purpose; prompt includes file paths) | `spawn_agent {fork_turns:"none"}` then `wait_agent` | `invoke_subagent` type `research` | sequential stance switch | stance switch (or a `context: fork` skill if configured) | stance switch |
 | Dispatch implementers in parallel | several `Agent` calls in one message | several `spawn_agent` calls, then `wait_agent` in 5–10 min stretches | `invoke_subagent` type `self`, one at a time unless concurrent dispatch is available | sequential, you implement | sequential, you implement | sequential, you implement |
-| Ask the user a batch | chat (numbered batch); `AskUserQuestion` only for the interpretation pick and gates | chat | chat | chat or the ask-questions tool | chat | chat |
+| Ask the user a batch | chat (numbered batch); `AskUserQuestion`, if present, only for the interpretation pick and gates | chat | chat | chat or the ask-questions tool | chat | chat |
 | Track tasks | the task-list tool if present (`TaskCreate`, `TodoWrite`), else `plan.md` checkboxes | chat + `plan.md` checkboxes | task artifact: `write_to_file` with `IsArtifact: true`, `ArtifactType: "task"` | `plan.md` checkboxes | `plan.md` checkboxes | `plan.md` checkboxes |
 | Read / write files | `Read`, `Write`, `Edit` | shell + apply_patch | `view_file`, `write_to_file`, `replace_file_content` | native edit tools | native edit tools | native tools |
 | Worktrees | `EnterWorktree` if present, else `git worktree add` | `git worktree add` (sandbox may block branches) | `git worktree add` | `git worktree add` | `git worktree add` | `git worktree add` |

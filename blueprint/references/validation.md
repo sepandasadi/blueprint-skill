@@ -44,7 +44,7 @@ Read all three track files once per pass. Record findings as `<severity> <pass> 
 | MEDIUM | quality or scope issue, outcome unchanged | fix, tag `[inferred]` | fix, tag `[inferred]` |
 | LOW | cosmetic | fix silently | fix silently |
 
-Questions to the user from validation use the same three-line format. HIGH questions count toward the follow-up cap; **CRITICAL questions are always asked, whatever the cap**. A CRITICAL question left unanswered is asked once more on its own; if it is still unanswered, stop before Phase 3. CRITICAL items are never resolved by a default.
+Questions to the user from validation use the same three-line format. HIGH questions count toward the follow-up cap of the track whose IDs they mostly touch; **CRITICAL questions are always asked, whatever the cap**. A CRITICAL question left unanswered is asked once more on its own; if it is still unanswered, stop before Phase 3. CRITICAL items are never resolved by a default.
 
 Record every finding and its fix in `plan.md › Review log` under a `Validation cycle N of 3` entry.
 
@@ -55,7 +55,8 @@ Validation → fixes → validation again until no CRITICAL/HIGH remains, at mos
 ## Pre-gate self-check
 
 Before showing any artifact at a gate, confirm all of these and say "Self-check: passed" (or list what failed and fix first):
-- no `<placeholder>` text remains in any artifact;
+- no template placeholder remains in any artifact (code literals in backticks are fine);
+- every Review log entry has a `Checked:` field;
 - no `[inferred]` entry contradicts a confirmed entry;
 - `## Ambiguities` is empty;
 - no requirement, design or test item was added that the user did not ask for or accept (scope creep);

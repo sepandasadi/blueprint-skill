@@ -43,7 +43,7 @@ Rules for every batch are in `references/interview-requirements.md` (batch rules
 
 Question banks: `references/interview-requirements.md`, `references/interview-design.md`, `references/interview-testing.md`. Each has a "Simple-mode selection" section naming which questions survive the merge.
 
-Time pressure from the user ("just start", "I know what I want", "by end of day") changes nothing here except the mode recommendation. The batch is the fastest honest path to the demo; say so in one line and ask it.
+Time pressure from the user ("just start", "I know what I want", "by end of day") does not skip or shrink a batch. Keep your mode recommendation as Phase 0 gave it, say in one line that the batch is the fastest honest path to the demo, and ask it.
 
 ## Phase 2 — Validate
 
@@ -81,7 +81,7 @@ Reviewer setup and checklists: `references/review-checklists.md`.
 | Builder check | yes: a second fresh reader lists questions whose answers would change the build → answered / minor (Ruling) / user's (one batched round) | no |
 | Cycles | fix CRITICAL/HIGH in place, re-run that pass, `Cycle N of 3` in Review log | one cycle; remaining HIGH items listed at Gate 1 |
 
-A stance-switch review re-reads every artifact from disk and ends with a `What was checked:` line. Without that line it did not happen.
+Every review cycle, fresh-context or stance switch, is logged with its `Checked:` field (files re-read from disk, passes run). Say the same line in chat. A cycle without it did not happen.
 
 ## Gate 1 — approve the plan
 
