@@ -62,10 +62,10 @@ choose_agents() {
   echo; echo "  a. All detected (${det[*]:-none})  <- recommended"; echo "  e. Everything, detected or not"; echo "  q. Quit"; echo
   read -r -p "Pick numbers separated by commas, or a / e / q: " ans
   case "$ans" in
-    q|"") exit 0 ;;
-    a) for a in "${AGENTS[@]}"; do detected "$a" && CHOSEN+=("$a"); done ;;
+    q|"") echo "Nothing selected."; exit 0 ;;
+    a) for a in "${AGENTS[@]}"; do if detected "$a"; then CHOSEN+=("$a"); fi; done ;;
     e) CHOSEN=("${AGENTS[@]}") ;;
-    *) for n in ${ans//,/ }; do [[ "$n" =~ ^[0-9]+$ ]] && [[ $n -ge 1 && $n -le ${#AGENTS[@]} ]] && CHOSEN+=("${AGENTS[$((n-1))]}"); done ;;
+    *) for n in ${ans//,/ }; do if [[ "$n" =~ ^[0-9]+$ ]] && [[ $n -ge 1 && $n -le ${#AGENTS[@]} ]]; then CHOSEN+=("${AGENTS[$((n-1))]}"); fi; done ;;
   esac
 }
 
@@ -73,7 +73,7 @@ targets_for() {
   local t=()
   for a in "$@"; do
     if [[ "$(field "$a" 5)" == "1" && $NATIVE -eq 0 ]]; then t+=("$SHARED_DIR/$SKILL_NAME")
-    else t+=("$(field "$a" 4)/$SKILL_NAME"); [[ "$(field "$a" 5)" == "1" ]] && t+=("$SHARED_DIR/$SKILL_NAME"); fi
+    else t+=("$(field "$a" 4)/$SKILL_NAME"); if [[ "$(field "$a" 5)" == "1" ]]; then t+=("$SHARED_DIR/$SKILL_NAME"); fi; fi
   done
   printf "%s\n" "${t[@]}" | awk '!seen[$0]++'
 }
@@ -84,7 +84,7 @@ do_install() {
   if [[ -n "$PROJECT" ]]; then
     TARGETS=("$PROJECT/.agents/skills/$SKILL_NAME" "$PROJECT/.claude/skills/$SKILL_NAME" "$PROJECT/.github/skills/$SKILL_NAME")
   else
-    if [[ $ALL -eq 1 ]]; then for a in "${AGENTS[@]}"; do detected "$a" && CHOSEN+=("$a"); done
+    if [[ $ALL -eq 1 ]]; then for a in "${AGENTS[@]}"; do if detected "$a"; then CHOSEN+=("$a"); fi; done
     elif [[ ${#CLIENTS[@]} -gt 0 ]]; then for id in "${CLIENTS[@]}"; do CHOSEN+=("$(agent_by_id "$id")"); done
     elif [[ -t 0 ]]; then choose_agents
     else echo "No TTY and no --client/--all/--project given." >&2; exit 2; fi
