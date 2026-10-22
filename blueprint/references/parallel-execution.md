@@ -19,6 +19,7 @@ Covers Phase 5 (split), Phase 7 (implement) and the Resume procedure.
 - Each plan must be independently verifiable: its `Verification` block passes on its own files plus already-complete dependencies.
 - Good seams: data layer vs API vs UI vs integration adapter; or one user journey per plan when they share nothing.
 - Shared test helpers, types and migrations go to the earliest plan that needs them.
+- **Every file any task mentions is in some plan's Owns — including docs.** README, CHANGELOG, API docs and config files that several plans document go to the last plan in dependency order, and earlier plans list their doc changes as tasks for that plan. The Phase 6 ownership check fails on any path a task names that no plan owns.
 
 ## Pre-flight conflict table
 
@@ -59,11 +60,17 @@ Model tier: standard for implementers, most capable for reviewers (how to set it
 ## Resume procedure
 
 Triggered when the artifact folder already exists or the user says to continue.
-1. Read `plan.md` status and every `impl-NN.md` Progress log. **Trust the decisions** (Rulings, confirmed entries); do not reopen them.
-2. **Re-verify facts:** `git status`, `git log` since the last ledger timestamp, run each in-progress plan's Verification block.
-3. Any file changed outside the ledger, or a test that no longer passes → write a `DRIFT` line with what you found.
-4. Continue from the first task not marked `complete` in the first plan whose dependencies are complete. Never touch another plan's `Owns`.
-5. If `plan.md` status is before `approved`, resume the phase it stopped in; the gates still apply.
+1. Read `plan.md` status and every `impl-NN.md` Progress log. **Trust the decisions** (Rulings, confirmed entries); do not reopen them. Write a `RESUME` line naming the task you will resume at.
+2. **Re-verify facts:** `git status`, `git log` since the last ledger timestamp, run each in-progress plan's Verification block. If the runner cannot run, say why in the `RESUME` line and use `complete (unverified: …)` for tasks you finish.
+3. Record a `DRIFT` line for each of:
+   - a file changed on disk that no ledger line explains;
+   - a ledger claim with no matching change on disk (e.g. "writing failing test" but no test exists) — restart that task step;
+   - a test that passed per the ledger and now fails.
+   A commit whose content matches existing ledger lines is not drift; mention it in the `RESUME` line.
+4. **Who resolves drift:** drift inside your plan's Owns — fix it as part of the task, noted in the ledger. Drift in another plan's Owns or in a file no plan owns — never revert or edit it; leave it, list it in the report, and the orchestrator asks the user before any commit includes that file.
+5. **Unowned file needed by your task:** if a task must edit a file no plan owns, add it to your plan's Owns with a `Ruling:` line. If another plan owns it, write `BLOCKED` instead.
+6. Continue from the first task not `complete` in the first plan whose dependencies are complete. Never touch another plan's `Owns`.
+7. If `plan.md` status is before `approved`, resume the phase it stopped in; the gates still apply.
 
 ## Task tracking without a todo tool
 

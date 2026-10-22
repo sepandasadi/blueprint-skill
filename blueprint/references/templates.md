@@ -21,7 +21,7 @@ All artifacts live in `docs/plans/<YYYY-MM-DD>-<feature-slug>/` inside the targe
 | `T-NN` | test item | `testing.md` | `T-07 Replayed webhook is ignored` |
 | `W###` | work task | `plan.md`, `impl-NN.md` | `W012 [P] [R-04] Add share-link route — src/routes/share.js` |
 
-Every `D` and `T` cites the `R` it serves. Every `W` cites at least one `R`, `D` or `T`. IDs are never renumbered; retired items are struck through with a reason.
+Every `D` and `T` cites the `R` it serves. Every `W` cites at least one `R`, `D` or `T`. IDs are never renumbered; new items get the next free number and are appended at the end of their section; retired items are struck through with a reason.
 
 ## Decision entry (used in all three track files)
 
@@ -145,7 +145,7 @@ Mode: <simple | advanced> · Created: <YYYY-MM-DD> · Status: <draft | validated
 
 mode: <simple | advanced>
 quiz: <off | on>
-status: <draft | reviewed | approved | implementing | converged>
+status: <draft | validated | reviewed | approved | implementing | converged>
 created: <YYYY-MM-DD>
 constitution: <none | docs/plans/CONSTITUTION.md>
 
@@ -199,7 +199,12 @@ Interfaces per task where they matter:
 ## Critical path
 W001 → W002 → W007 (<estimate in tasks, not hours>)
 
+## Threat model (STRIDE-lite)          <!-- filled in Phase 4; one row per trust boundary in design.md -->
+| Boundary | Spoofing | Tampering | Repudiation | Info disclosure | Denial of service | Elevation of privilege |
+|---|---|---|---|---|---|---|
+
 ## Review log
+- Validation cycle 1 of 3 (<YYYY-MM-DD>): <findings> → <fixes>
 - Cycle 1 of 3 (<YYYY-MM-DD>, <reviewer: fresh-context | stance-switch>): <findings> → <fixes>
 
 ## Rulings
@@ -271,7 +276,21 @@ One line per event, newest last, never edited after the fact (append a correctio
 2026-10-22 15:40 DONE_WITH_CONCERNS: W015 retry logic untested under network partition (see T-09)
 ```
 
-Status words: `START`, `complete`, `BLOCKED`, `NEEDS_CONTEXT`, `DRIFT`, `DONE`, `DONE_WITH_CONCERNS`. A plan is reportable only after a `DONE` or `DONE_WITH_CONCERNS` line and a passing run of its Verification block.
+Status words:
+
+| Word | Use it when |
+|---|---|
+| `START` | an implementer begins a plan for the first time |
+| `RESUME` | work continues after a context loss or a new session; name the task resumed at |
+| `complete` | a task's steps are done **and** its Expected output was observed |
+| `complete (unverified: <reason>)` | the code is written but the test runner could not run (missing deps, no network); say what was checked instead |
+| `BLOCKED` | a dependency or decision outside this plan is missing |
+| `NEEDS_CONTEXT` | the plan text is insufficient to proceed; state the question |
+| `DRIFT` | disk or git state disagrees with the ledger (see Resume) |
+| `DONE` | every task `complete` and the Verification block passed |
+| `DONE_WITH_CONCERNS` | every task done, but something is unverified or a risk remains; list it |
+
+A plan is reportable and committable only after a `DONE` line, or a `DONE_WITH_CONCERNS` line whose concerns do **not** include an unverified Verification block. Any `complete (unverified: …)` task keeps the plan out of the commit step until its Verification block passes.
 
 ## `CONSTITUTION.md` (optional; lives at `docs/plans/CONSTITUTION.md`)
 

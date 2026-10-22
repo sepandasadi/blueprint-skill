@@ -20,7 +20,8 @@
 4. **Answer forms accepted:** per number (`Q4: anyone, with preview`), `all defaults`, `all defaults except …`, or free text. Unanswered numbers take the Recommended value and are tagged `[inferred]`.
 5. **Trim priority** when the bank yields more than the cap: scope > security/privacy > UX > technical. Trimmed questions become `## Assumptions` entries with their Recommended value, tagged `[inferred]`.
 6. **Record immediately.** After each reply, write the entries to the track file and append `Q → A` lines to `## Clarifications / ### Session <date>` before asking anything else.
-7. **Follow-ups** are a separate, smaller batch (max 2 rounds per track in advanced, 1 in simple) and only for answers that are vague, contradictory, untestable, or that opened a new area.
+7. **Follow-ups** are a separate, smaller batch (max 2 rounds per track in advanced, 1 in simple) and only for answers that are vague, contradictory, untestable, or that opened a new area. Unanswered follow-ups take the Recommended value and are listed at Gate 1 — except CRITICAL ones (see `validation.md › Severity and routing`), which are never defaulted.
+8. **Non-goals are not requirements.** Things the user puts out of scope go under `## Non-goals` without an R-ID; only positive, testable statements get R-IDs.
 
 ## Opening: interpretations
 
@@ -83,4 +84,4 @@ Ask a follow-up when an answer:
 
 ## Simple-mode selection
 
-In simple mode the three tracks are merged into one batch of 10–15 questions. From this track take, in order until the per-track share (5–7) is filled: the interpretation pick, primary journey, out of scope, permissions, the one anti-goal, data retention, success metric. Everything else is an `[inferred]` assumption.
+In simple mode the three tracks are merged into one batch of 10–15 questions, asked after the interpretation pick (which is always its own question). From this track take, in order until the per-track share (5–7) is filled: primary journey, out of scope, permissions, the one anti-goal, failure behaviour, data retention, success metric. Everything else is an `[inferred]` assumption.

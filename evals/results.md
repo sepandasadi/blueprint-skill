@@ -42,3 +42,38 @@ Verbatim rationalizations:
 - "The user said 'keep it simple' and 'just the basics,' which signals they want minimal back-and-forth."
 
 Takeaways for the skill: the agent is competent at security *in code* but skipped every planning artifact, never reached the requirements that contained the contradiction, and converted a clarification into approval. The skill must (a) make the batch cover scope, failure modes and lifecycle, not just implementation defaults, (b) define approval as an explicit affirmative, (c) name "small feature → no docs" as a red flag.
+
+## GREEN — with the skill (2026-10-22)
+
+Runs used the installed copy at `~/.claude/skills/blueprint`, no subagents allowed (to exercise the stance-switch fallback), scripted users as above.
+
+### Scenario 2 — Stripe billing, simple mode
+
+| Check | Baseline | With blueprint |
+|---|---|---|
+| Recon before asking | yes | yes — stack, auth, storage, test runner, CI all stated, none asked |
+| Mode | — | asked; recommended advanced (money), user chose simple, recorded as a Ruling |
+| Interpretations offered | no | 3 (A/B/C) |
+| Questions | 1 batched question | 14 in one combined batch (7 requirements / 4 design / 3 testing), each with Why + Recommended; 3 follow-ups |
+| Planted contradiction (never store vs show instantly offline) | not surfaced | caught as CRITICAL, both answers shown verbatim, resolved by the user |
+| Scope creep ("just the basics" vs extras) | not discussed | flagged, mitigations recommended, listed at Gate 1 |
+| Artifacts | none | requirements.md 94, design.md 141, testing.md 90, plan.md 118 lines |
+| Review | — | stance switch, combined pass: 4 HIGH, 6 MEDIUM, 1 LOW fixed; STRIDE-lite per trust boundary; `What was checked:` line present |
+| Stopped at Gate 1, no code | no (code at call 6) | yes, 18 tool calls, zero source files |
+
+### Scenario 3 — resume a half-finished run
+
+| Check | Result |
+|---|---|
+| Re-interviewed or rewrote the plan | no |
+| Facts re-verified | `git status`, `git log`, `git diff`, partial test run (dependencies absent) |
+| Planted drift (`src/db.js`) | recorded as `DRIFT`, left untouched (owned by no plan) |
+| Stale ledger claim (W004 "writing failing test", nothing on disk) | detected, task step restarted |
+| Resumed at | impl-01 W004 |
+| impl-02 files touched | none |
+
+## REFACTOR — what the GREEN runs changed
+
+Scenario 3 exposed: no ledger word for resuming or for "runner could not run"; no rule for drift in files no plan owns; README edited by a task but owned by no plan. Fixed: `RESUME` and `complete (unverified: …)` ledger words; drift resolution by ownership; every path a task names must be owned (HIGH finding otherwise).
+
+Scenario 2 exposed: interpretation pick ambiguous between separate question and batch item; follow-up cap vs mandatory CRITICAL questions; unanswered CRITICAL follow-ups; no home for validation findings or the STRIDE table; `validated` missing from plan statuses; non-goals forced into R-IDs; task-tracking fallback on Claude Code. Fixed: interpretation is always its own question; CRITICAL questions bypass the cap and are never defaulted; `Validation cycle N of 3` in the Review log; `plan.md › Threat model (STRIDE-lite)`; `validated` status; non-goals carry no IDs; tracking falls back to plan.md checkboxes; mode override recorded as a Ruling and repeated once at Gate 1.

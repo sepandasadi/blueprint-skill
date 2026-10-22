@@ -15,7 +15,7 @@ Used in Phase 4 (plan review), Phase 6 (implementation-plan review) and the conv
 ## Reviewer setup
 
 - **Fresh context (preferred, advanced mode):** dispatch a reviewer subagent (see `harness-map.md`) with: the artifact paths, this file's path, the pass names to run, and "report findings only; do not edit". It must not see the conversation that produced the plan.
-- **Stance switch (fallback, and simple mode):** announce "Switching stance to reviewer." Re-read every artifact from disk with the file tool (not from memory), run the passes, and end the review with a `What was checked:` line listing files and passes. A review without that line is not a review.
+- **Stance switch (fallback, and simple mode):** announce "Switching stance to reviewer." Re-read every artifact from disk (any file-reading tool or shell command; never from memory), run the passes, and end the review with a `What was checked:` line listing files and passes. A review without that line is not a review.
 - Advanced mode runs the three passes separately (one findings list each). Simple mode runs one combined pass using all three checklists.
 
 ## Bugs pass
@@ -40,7 +40,7 @@ For each task and design decision ask:
 
 ## Security pass (STRIDE-lite)
 
-For every row in `design.md › Trust boundaries`, fill:
+For every row in `design.md › Trust boundaries`, fill this table in `plan.md › Threat model (STRIDE-lite)`:
 
 | Boundary | Spoofing | Tampering | Repudiation | Info disclosure | Denial of service | Elevation of privilege |
 |---|---|---|---|---|---|---|
@@ -67,7 +67,7 @@ A second fresh-context subagent (or a second stance switch) reads only `plan.md`
 - **Docs:** every new public surface (route, CLI flag, env var, event, exported function) has a task that documents it where the project documents such things.
 - **No refactor needed:** would the finished result need restructuring immediately (god module, duplicated state, leaky abstraction)? If yes, fix the plan now.
 - **Coverage verdicts:** for every R-ID, mark `Satisfied / Partial / Gap / Conflict` across the union of impl plans. `Partial` counts as `Gap`. Any Gap or Conflict blocks Gate 2.
-- **Ownership:** every file appears in exactly one plan's `Owns`; shared interfaces are frozen; dependency edges form no cycle.
+- **Ownership:** every path that any task names (source, tests, docs, config) appears in exactly one plan's `Owns`; shared interfaces are frozen; dependency edges form no cycle. A path named by a task but owned by no plan is a HIGH finding.
 
 ## Finding format and the fix loop
 

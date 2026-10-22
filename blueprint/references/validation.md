@@ -12,6 +12,7 @@ Run after the interview (Phase 2) and again as the pre-gate self-check before Ga
 ## Traceability matrix
 
 Build the table in `plan.md › Traceability matrix`. Rules:
+- The matrix covers R-IDs only; `## Non-goals` entries have no IDs and are not in it.
 - Every `R` maps to ≥ 1 `D` and ≥ 1 `T`. An `R` with no `D` is a HIGH finding (undesigned requirement); with no `T` a HIGH finding (untestable requirement).
 - Every `D` and `T` cites ≥ 1 `R`. An orphan `D` is MEDIUM (gold-plating); an orphan `T` is LOW.
 - After Phase 3, every `R` maps to ≥ 1 `W`; a `W` citing nothing is MEDIUM.
@@ -43,7 +44,9 @@ Read all three track files once per pass. Record findings as `<severity> <pass> 
 | MEDIUM | quality or scope issue, outcome unchanged | fix, tag `[inferred]` | fix, tag `[inferred]` |
 | LOW | cosmetic | fix silently | fix silently |
 
-Questions to the user from validation are a follow-up batch (same three-line format) and count toward the follow-up cap.
+Questions to the user from validation use the same three-line format. HIGH questions count toward the follow-up cap; **CRITICAL questions are always asked, whatever the cap**. A CRITICAL question left unanswered is asked once more on its own; if it is still unanswered, stop before Phase 3. CRITICAL items are never resolved by a default.
+
+Record every finding and its fix in `plan.md › Review log` under a `Validation cycle N of 3` entry.
 
 ## Cycle cap
 

@@ -16,6 +16,8 @@ Turns "build me X" into approved, reviewed, parallel-ready implementation plans 
 1. **Detect the harness** from your tool list (`references/harness-map.md`). Record it as a Ruling later.
 2. **Pick the mode.** Use the mode the user named (`/blueprint simple …`, "advanced mode", …) or the `mode:` default in `docs/plans/CONSTITUTION.md`. Otherwise ask one question and wait:
    > Simple or advanced? Recommended: **advanced** for a new app, or anything touching money, auth, personal data, or more than ~5 files; **simple** for a contained feature in an existing codebase.
+
+   If the user picks simple against your recommendation, record `Ruling: mode = simple — user's choice; advanced was recommended because <reason> — cost if wrong: <what is lighter>`, repeat that line once at Gate 1, and proceed without arguing.
 3. **Recon before any question.** Read manifests, lockfiles, directory layout, existing docs, tests, CI config, and recent git log. Checklists are in `references/interview-design.md` and `interview-testing.md`. Never ask what the repository can answer; say what you found instead.
 4. **Constitution.** If `docs/plans/CONSTITUTION.md` exists, read it; its MUST/SHOULD principles are checked in Phase 2 and Phase 4. If it does not exist, skip silently.
 5. **Artifact folder.** `docs/plans/<YYYY-MM-DD>-<feature-slug>/` (slug: 2–4 words, lowercase, hyphens). If it already exists, go to **Resume** below.
@@ -25,7 +27,7 @@ Turns "build me X" into approved, reviewed, parallel-ready implementation plans 
 
 Rules for every batch are in `references/interview-requirements.md` (batch rules). The short version:
 
-- Open with **2–3 interpretations** of the request; the user picks or corrects.
+- Open with **2–3 interpretations** of the request as its own short question, before any batch (both modes); the user picks or corrects. The batch is written for the reading they chose.
 - Each question has three lines: the question, **Why it matters**, **Recommended**.
 - Accept answers per number, `all defaults`, `all defaults except …`, or free text. Unanswered → Recommended value, tagged `[inferred]`.
 - **Record immediately** after each reply: `R-`/`D-`/`T-` entries with `Decision / Grounds / Reopen if`, plus the dated `## Clarifications` Q→A log.
@@ -49,10 +51,11 @@ Follow `references/validation.md`:
 
 1. Build the **traceability matrix** in `plan.md`: every R → ≥1 D and ≥1 T; every D and T → ≥1 R.
 2. Run the **six passes**: duplication, ambiguity, underspecification, constitution alignment, coverage gaps, inconsistency. Inconsistency is where answers that cannot all be true get caught (end-to-end encryption vs server-side search; "never store X" vs "show X instantly offline"; "just the basics" vs a long extras list).
-3. Route by severity: CRITICAL → ask the user now (both modes). HIGH → ask (advanced) or fix with the recommended default and list at Gate 1 (simple). MEDIUM/LOW → fix, tag `[inferred]`.
-4. Loop until no CRITICAL/HIGH, at most 3 cycles; then stop and ask.
+3. Route by severity: CRITICAL → ask the user now (both modes), even if the follow-up cap is used up. HIGH → ask (advanced) or fix with the recommended default and list at Gate 1 (simple). MEDIUM/LOW → fix, tag `[inferred]`.
+4. A CRITICAL question the user leaves unanswered is asked once more on its own; if still unanswered, stop — CRITICAL items are never defaulted.
+5. Loop until no CRITICAL/HIGH, at most 3 cycles; then stop and ask. Log each cycle in `plan.md › Review log` as `Validation cycle N of 3`.
 
-Set every track file's status to `validated`.
+Set every track file's and `plan.md`'s status to `validated`.
 
 ## Phase 3 — Plan
 
@@ -136,11 +139,13 @@ Simple mode runs the same steps; it only differs in how many plans exist and tha
 
 When the artifact folder exists or the user says "continue":
 
-1. Read `plan.md` status and every Progress log. **Trust the decisions**; do not re-interview or reopen Rulings.
+1. Read `plan.md` status and every Progress log. **Trust the decisions**; do not re-interview or reopen Rulings. Write a `RESUME` ledger line.
 2. **Re-verify facts:** `git status`, `git log` since the last ledger timestamp, each in-progress plan's Verification block.
-3. Anything changed outside the ledger, or a test that no longer passes → `DRIFT` line with what you found.
+3. Disk changes no ledger line explains, ledger claims with no matching change, or tests that stopped passing → `DRIFT` line. Fix drift only inside your own Owns; anything else is left untouched and raised with the user before commit.
 4. Continue from the first task not `complete` in the first plan whose dependencies are complete; never touch another plan's Owns.
 5. If status is before `approved`, resume that phase; gates still apply.
+
+Full rules, including unowned files and runners that cannot run: `references/parallel-execution.md › Resume procedure`.
 
 ## Red flags — stop and re-read the phase you are in
 
