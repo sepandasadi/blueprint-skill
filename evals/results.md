@@ -124,3 +124,53 @@ Also verified from the npm registry: `npx blueprint-skill@0.1.0` help, dry run, 
 | Cursor agent CLI | not verified | not run | `cursor-agent status` and `agent status` both report not logged in (the Cursor app login does not carry over) |
 | Antigravity (IDE inside Gemini.app, `agy` engine) | **no in 0.1.0** — installer wrote only `~/.agents/skills`; the engine loads global skills from `{appDataDir}/skills` = `~/.gemini/antigravity/skills` (strings in the `agy` binary; matches where the user's working hyperframes skills live). Fixed in 0.1.1 | manual check by the user | reported by the user: `/blueprint` showed nothing after restart |
 | VS Code Copilot | not verified | not run | no headless mode; manual check needed |
+
+## REFACTOR — one question at a time (2026-10-22)
+
+Field report from a real Claude Code run: during the first requirement question the agent printed all 15 questions with recommendations at once. Root cause: the skill itself prescribed "one numbered batch per track" of 8–15 questions (`SKILL.md` Phase 1, `interview-requirements.md` batch rules, the harness map, README and diagrams), so the agent followed the instruction exactly. Fix: the interview is now one question per message (Why it matters + Recommended + short progress tag), the next question is chosen from the bank by what the last answer changed, each reply is recorded before the next question, and `defaults for the rest of this track` replaces `all defaults` as the shortcut. Scenarios 1 and 2 now fail a run that shows more than one question in a message. Not yet re-run with a fresh agent.
+
+## Installer 0.2.0 — versions and updates (2026-10-22)
+
+Both installers were run in throwaway home folders against a stub npm registry, then against the real one.
+
+| Case | Node | Bash |
+|---|---|---|
+| `--version` | 0.2.0 | 0.2.0 |
+| install writes `.blueprint-version` into every copy | yes | yes |
+| install, newer version on npm | one-line notice with the update command | same |
+| `doctor`, newer version on npm | every copy marked outdated, update command printed | same |
+| `doctor`, npm equal to installer | copies shown current, no command | same |
+| `update`, empty manifest | "Nothing was installed … yet" | same |
+| `update --dry-run`, one copy at 0.1.1, one without a version file | lists both as stale, the current copy as current | same |
+| `update` with no terminal and no `--yes` | refuses, exit 2 | same |
+| `update --yes` while npm has a newer version | notes that `@latest` is newer, updates to its own version, backs up first | same |
+| `update` again | "Already up to date." | same |
+| registry refuses the connection | silent, no delay | same |
+| registry accepts but never answers | gives up after 2.1 s | gives up after 2.6 s |
+| `BLUEPRINT_SKILL_NO_UPDATE_CHECK=1` | no network call | same |
+| real npm registry (0.1.1 published) | read 0.1.1; hint uses this build, not `@latest`, because `@latest` would go backwards | same |
+| real machine, copies installed by 0.1.x | 9 copies "unknown version → 0.2.0", doctor clean afterwards | — |
+
+## Behaviour runs after the one-question fix (2026-10-22)
+
+Run in Claude Code through fresh subagents, one user message per turn, scripted answers from `answers.md`, with the installed copy at `~/.claude/skills/blueprint`. Codex, the Cursor agent CLI and Gemini CLI were installed but not signed in on this machine, so they could not be run; Antigravity and VS Code Copilot have no headless CLI here.
+
+| Check | Scenario 1 (notes, advanced) | Scenario 2 (Stripe, simple) | Scenario 3 (resume) |
+|---|---|---|---|
+| Messages with more than one question | **0 of 16** | **0 of 14** | — |
+| Every question had Why it matters + Recommended + progress tag | yes | yes | — |
+| Mode and interpretation asked alone, first | yes | yes, after recon | — |
+| Planted contradiction | caught on the turn it appeared, both answers quoted, no default | caught on the turn it appeared, both answers quoted, no default | — |
+| Other conflicts raised as single questions | 2 more (new-device key, invite to a new user) | 2 more ("lock" vs display-only, never-store vs webhook status) | — |
+| `defaults for the rest of this track` | honoured three times; skipped questions listed and tagged `[inferred]` | not used | — |
+| Design opener / testing opener | 7-line architecture, coverage proposal | architecture sketch | — |
+| Review | 4 full rounds + 2 targeted checks; stopped at the 3-cycle cap and asked; 9 `Checked:` lines | combined pass, 4 HIGH fixed, `Checked:` lines present | — |
+| Stopped at Gate 1 with one question, no source files | yes (4 plan files, 1,024 lines) | yes (4 plan files, 510 lines) | — |
+| Resume | — | — | `RESUME` + 3 `DRIFT` lines, `src/db.js` untouched, impl-02 untouched, no re-interview |
+
+Deviations, none caused by the one-question change:
+- Scenario 2 asked 1 testing question; simple mode asks for 2–3.
+- Scenario 1 asked 3 requirement follow-ups against a cap of 2; all three were conflicts it treated as CRITICAL, which the rules allow.
+- The resume fixture's `npm test` (`node --test test/`) fails on Node 22 before any test runs; the agent recorded `complete (unverified: …)` as the skill says.
+
+Not covered: Codex, Cursor, Gemini CLI (not signed in on this machine), Antigravity and VS Code Copilot (no headless CLI), and Claude Code's `AskUserQuestion` rendering (subagents asked in chat).

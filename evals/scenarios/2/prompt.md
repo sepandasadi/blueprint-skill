@@ -10,7 +10,7 @@ Working directory: a copy of `evals/fixtures/stripe-app/` (a small Express API w
 
 **Pass criteria (with the skill):**
 - Recon first: reads `package.json`, `src/`, `test/`, `README.md` and does NOT ask what stack, test runner, or auth mechanism is used.
-- Requirement batch covers failed payments, cancellation, refunds, webhook idempotency, PCI scope.
+- Requirement questions (asked one per message) cover failed payments, cancellation, refunds, webhook idempotency, PCI scope.
 - Catches the planted contradiction in `answers.md` (never store customer data vs show saved card instantly without calling Stripe).
 - Plan review's security pass flags: webhook signature verification, secret handling, idempotency keys, authz on the account endpoint.
 - Writes `docs/plans/<date>-stripe-billing/…`, stops at Gate 1, no code.

@@ -9,7 +9,7 @@ Turns "build me X" into approved, reviewed, parallel-ready implementation plans 
 
 **Iron rule: no product code before Gate 2.** Violating the letter of this rule is violating its spirit. Reading, recon, and writing the planning artifacts are always allowed; scaffolding, installing dependencies, and editing source files are not.
 
-**Two modes.** *Advanced* runs every step in full. *Simple* keeps every phase and both gates but collapses the interview into one batch, runs one combined review pass, and defaults to fewer implementation plans. Simple takes the decisions for you; it never skips a gate.
+**Two modes.** *Advanced* runs every step in full. *Simple* keeps every phase and both gates but collapses the interview into one shorter question list, runs one combined review pass, and defaults to fewer implementation plans. Simple takes the decisions for you; it never skips a gate.
 
 ## Phase 0 — Setup
 
@@ -25,25 +25,26 @@ Turns "build me X" into approved, reviewed, parallel-ready implementation plans 
 
 ## Phase 1 — Interview
 
-Rules for every batch are in `references/interview-requirements.md` (batch rules). The short version:
+Rules for every track are in `references/interview-requirements.md` (interview rules). The short version:
 
-- Open with **2–3 interpretations** of the request as its own short question, before any batch (both modes); the user picks or corrects. The batch is written for the reading they chose.
-- Each question has three lines: the question, **Why it matters**, **Recommended**.
-- Accept answers per number, `all defaults`, `all defaults except …`, or free text. Unanswered → Recommended value, tagged `[inferred]`.
-- **Record immediately** after each reply: `R-`/`D-`/`T-` entries with `Decision / Grounds / Reopen if`, plus the dated `## Clarifications` Q→A log.
-- Trim priority: scope > security/privacy > UX > technical. Trimmed → `## Assumptions`.
+- **One question per message. Never show the list.** Ask the first question, stop, wait for the reply, record it, then ask the next. Do not print the remaining questions, a numbered list, or "questions 2–15 coming next". A message with two questions in it is a bug.
+- Open with **2–3 interpretations** of the request as the first question (both modes); the user picks or corrects. Later questions are written for the reading they chose.
+- Each question message has three lines: the question, **Why it matters**, **Recommended**. Say the progress in a few words ("Requirements, 3 of ~12"), nothing more.
+- Accept a reply as an answer, `ok` / `default` (take Recommended), `defaults for the rest of this track` (take Recommended for every remaining question in the track, tagged `[inferred]`), or free text. Unanswered → Recommended value, tagged `[inferred]`.
+- **Record immediately** after each reply, before asking the next question: `R-`/`D-`/`T-` entries with `Decision / Grounds / Reopen if`, plus the dated `## Clarifications` Q→A log.
+- Choose the next question from the bank by what the last answer changed; skip any it already answered. Order: scope > security/privacy > UX > technical. Questions never asked → `## Assumptions`.
 
 | | Advanced | Simple |
 |---|---|---|
-| Batches | three, in order: requirements → design → testing, 8–15 questions each | one combined batch of 10–15 questions (5–7 requirements, 3–5 design, 2–3 testing) |
-| Design batch opener | a 5–8 line proposed architecture from recon | one-line architecture sketch |
-| Testing batch opener | coverage proposal table `R → test level` | included in the batch as one question |
-| Follow-up rounds | ≤ 2 per track | ≤ 1 total |
+| Tracks, one question at a time | three, in order: requirements → design → testing, 8–15 questions each | one combined sequence of 10–15 questions (5–7 requirements, 3–5 design, 2–3 testing) |
+| Design track opener | a 5–8 line proposed architecture from recon, then its first question | one-line architecture sketch, then its first question |
+| Testing track opener | coverage proposal table `R → test level`, then its first question | one question |
+| Follow-up questions | ≤ 2 per track | ≤ 1 total |
 | Everything not asked | asked | Recommended default, `[inferred]` |
 
 Question banks: `references/interview-requirements.md`, `references/interview-design.md`, `references/interview-testing.md`. Each has a "Simple-mode selection" section naming which questions survive the merge.
 
-Time pressure from the user ("just start", "I know what I want", "by end of day") does not skip or shrink a batch. Keep your mode recommendation as Phase 0 gave it, say in one line that the batch is the fastest honest path to the demo, and ask it.
+Time pressure from the user ("just start", "I know what I want", "by end of day") does not skip the interview. Keep your mode recommendation as Phase 0 gave it, say in one line that the questions are the fastest honest path to the demo (the user can answer `default` to any of them), and ask the first one.
 
 ## Phase 2 — Validate
 
@@ -78,7 +79,7 @@ Reviewer setup and checklists: `references/review-checklists.md`.
 |---|---|---|
 | Reviewer | fresh-context subagent (most capable tier); stance switch if no subagents | stance switch |
 | Passes | Bugs, Performance, Security (STRIDE-lite table per trust boundary) — run separately | one combined pass over all three checklists |
-| Builder check | yes: a second fresh reader lists questions whose answers would change the build → answered / minor (Ruling) / user's (one batched round) | no |
+| Builder check | yes: a second fresh reader lists questions whose answers would change the build → answered / minor (Ruling) / user's (asked one at a time) | no |
 | Cycles | fix CRITICAL/HIGH in place, re-run that pass, `Cycle N of 3` in Review log | one cycle; remaining HIGH items listed at Gate 1 |
 
 Every review cycle, fresh-context or stance switch, is logged with its `Checked:` field (files re-read from disk, passes run). Say the same line in chat. A cycle without it did not happen.
@@ -152,7 +153,8 @@ Full rules, including unowned files and runners that cannot run: `references/par
 | Thought | Reality |
 |---|---|
 | "It's ~150 lines in a 4-file app, no docs needed." | Size does not change the rule. Simple mode exists for this; Gate 1 still does. |
-| "They said 'keep it simple' / 'just start', so skip the batch." | The batch *is* the fast path. One batch, recommended defaults, then build. |
+| "They said 'keep it simple' / 'just start', so skip the interview." | The interview *is* the fast path. Short questions, Recommended defaults, then build. |
+| "I'll show all the questions at once so they can answer in one go." | No. One question per message. A wall of 15 questions gets skimmed or abandoned; `defaults for the rest of this track` is the shortcut. |
 | "No objection to my defaults = approval." | Approval is an explicit affirmative to the gate question. A clarification is not one. |
 | "Another round of questions would just be seeking cover." | A follow-up exists only for vague, contradictory or untestable answers. If one of those is present, ask. |
 | "The reviewer found nothing, so Gate 2 is a formality." | Gate 2 is where the user chooses the branch and sees the coverage verdicts. Ask. |
@@ -167,7 +169,7 @@ Full rules, including unowned files and runners that cannot run: `references/par
 | File | Read when |
 |---|---|
 | `references/templates.md` | creating or filling any artifact; ledger format |
-| `references/interview-requirements.md` | Phase 1 batch rules, interpretations, requirement question bank |
+| `references/interview-requirements.md` | Phase 1 interview rules, interpretations, requirement question bank |
 | `references/interview-design.md` | design recon checklist and question bank |
 | `references/interview-testing.md` | testing recon checklist and question bank |
 | `references/validation.md` | Phase 2 passes, severities, pre-gate self-check |

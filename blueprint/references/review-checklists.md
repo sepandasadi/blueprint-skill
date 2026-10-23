@@ -59,7 +59,7 @@ Each cell: the control (authn, signature check, validation, logging, rate limit,
 A second fresh-context subagent (or a second stance switch) reads only `plan.md` and the track files as a builder who cannot ask questions and lists every question whose answer would change what gets built. Sort them:
 - **Answered already** by the artifacts → add the pointer to the plan.
 - **Minor** → decide it, record as `Ruling:` in `plan.md`.
-- **The user's** → one batched round before Gate 1.
+- **The user's** → asked one at a time before Gate 1.
 
 ## Phase 6 additions (implementation plans)
 

@@ -10,18 +10,29 @@
  *   npx blueprint-skill --project .     install into a repository instead of ~
  *   npx blueprint-skill --dry-run       print the plan only
  *   npx blueprint-skill uninstall       remove exactly what a previous run wrote
- *   npx blueprint-skill doctor          show what is installed where
+ *   npx blueprint-skill doctor          show what is installed where, and whether it is current
+ *   npx blueprint-skill@latest update   reinstall the latest version into every folder in the manifest
+ *
+ * Every run checks npm for a newer version (2 s timeout, silent when offline).
+ * Turn it off with BLUEPRINT_SKILL_NO_UPDATE_CHECK=1.
  */
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
 const readline = require('readline');
+const http = require('http');
+const https = require('https');
 
 const HOME = os.homedir();
 const SKILL_NAME = 'blueprint';
 const SRC = path.join(__dirname, '..', SKILL_NAME);
 const STATE_DIR = path.join(HOME, '.blueprint-skill');
 const MANIFEST = path.join(STATE_DIR, 'manifest');
+const PKG = require(path.join(__dirname, '..', 'package.json'));
+const VERSION = PKG.version;
+const VERSION_FILE = '.blueprint-version'; // written into every installed copy
+const REGISTRY = process.env.BLUEPRINT_SKILL_REGISTRY || 'https://registry.npmjs.org';
+const UPDATE_CMD = 'npx blueprint-skill@latest update';
 
 // Each agent: where it reads user-level skills, and which single folder we
 // write by default. Agents that read the shared ~/.agents/skills get only that
@@ -44,7 +55,7 @@ const flags = { client: [], all: false, yes: false, dryRun: false, native: false
 let command = 'install';
 for (let i = 0; i < argv.length; i++) {
   const a = argv[i];
-  if (a === 'install' || a === 'uninstall' || a === 'doctor') command = a;
+  if (a === 'install' || a === 'uninstall' || a === 'doctor' || a === 'update') command = a;
   else if (a === '--client' || a === '-c') flags.client.push(argv[++i]);
   else if (a.startsWith('--client=')) flags.client.push(a.split('=')[1]);
   else if (a === '--all' || a === '-a') flags.all = true;
@@ -54,6 +65,7 @@ for (let i = 0; i < argv.length; i++) {
   else if (a === '--project' || a === '-p') flags.project = path.resolve(argv[++i] || '.');
   else if (a.startsWith('--project=')) flags.project = path.resolve(a.split('=')[1]);
   else if (a === '--help' || a === '-h') flags.help = true;
+  else if (a === '--version' || a === '-v') flags.version = true;
   else { console.error(`Unknown argument: ${a}`); flags.help = true; }
 }
 
@@ -67,12 +79,14 @@ const detected = (agent) => exists(path.join(HOME, ...agent.detect));
 
 function help() {
   console.log(`
-${c.bold('blueprint-skill')} — install the "blueprint" skill for your coding agents
+${c.bold('blueprint-skill')} ${VERSION} — install the "blueprint" skill for your coding agents
 
 Usage:
   npx blueprint-skill [install] [options]   interactive unless --client/--all is given
   npx blueprint-skill uninstall [--dry-run] remove what a previous run wrote
-  npx blueprint-skill doctor                show detected agents and installed copies
+  npx blueprint-skill doctor                show detected agents, installed copies and their versions
+  npx blueprint-skill@latest update [-n] [-y]
+                                            reinstall the latest version into every folder a previous run wrote
 
 Options:
   -c, --client <id>   one of: ${AGENTS.map((a) => a.id).join(', ')} (repeatable)
@@ -81,7 +95,11 @@ Options:
       --native        also write each agent's native folder, not just the shared ~/.agents/skills
   -n, --dry-run       print the plan and exit
   -y, --yes           skip the confirmation prompt
+  -v, --version       print the installer version
   -h, --help
+
+Every run checks npm for a newer version and prints one line if there is one.
+Set BLUEPRINT_SKILL_NO_UPDATE_CHECK=1 to turn that off.
 `);
 }
 
@@ -157,6 +175,45 @@ function verify(target) {
   return /^name:\s*blueprint\s*$/m.test(head) ? null : 'name does not match folder';
 }
 
+// ---------- versions ----------
+function installedVersion(target) {
+  try { return fs.readFileSync(path.join(target, VERSION_FILE), 'utf8').trim() || null; } catch { return null; }
+}
+// Compare dotted numeric versions; prerelease tags are ignored. Returns -1, 0 or 1.
+function cmpVersion(a, b) {
+  const pa = String(a).split('-')[0].split('.').map(Number), pb = String(b).split('-')[0].split('.').map(Number);
+  for (let i = 0; i < Math.max(pa.length, pb.length); i++) {
+    const x = pa[i] || 0, y = pb[i] || 0;
+    if (x !== y) return x < y ? -1 : 1;
+  }
+  return 0;
+}
+// Latest published version from the npm registry, or null when offline, slow or disabled.
+function fetchLatest(timeoutMs = 2000) {
+  if (process.env.BLUEPRINT_SKILL_NO_UPDATE_CHECK) return Promise.resolve(null);
+  return new Promise((resolve) => {
+    let done = false;
+    const finish = (v) => { if (!done) { done = true; resolve(v); } };
+    try {
+      const url = `${REGISTRY.replace(/\/$/, '')}/blueprint-skill/latest`;
+      const lib = url.startsWith('http://') ? http : https;
+      const req = lib.get(url, { headers: { accept: 'application/json' }, timeout: timeoutMs }, (res) => {
+        if (res.statusCode !== 200) { res.resume(); return finish(null); }
+        let body = '';
+        res.setEncoding('utf8');
+        res.on('data', (d) => { body += d; if (body.length > 1e6) req.destroy(); });
+        res.on('end', () => { try { finish(JSON.parse(body).version || null); } catch { finish(null); } });
+      });
+      req.on('timeout', () => { req.destroy(); finish(null); });
+      req.on('error', () => finish(null));
+    } catch { finish(null); }
+  });
+}
+function newerNotice(latest) {
+  if (!latest || cmpVersion(VERSION, latest) >= 0) return;
+  console.log(`\n${c.yellow('update')} blueprint-skill ${latest} is available (this installer is ${VERSION}). Run: ${c.bold(UPDATE_CMD)}`);
+}
+
 function install(targets) {
   const stamp = new Date().toISOString().replace(/[:.]/g, '-');
   const written = [];
@@ -172,6 +229,7 @@ function install(targets) {
       console.log(`${c.yellow('backup')} ${t} → ${backup}`);
     }
     copyDir(SRC, t);
+    fs.writeFileSync(path.join(t, VERSION_FILE), VERSION + '\n');
     const problem = verify(t);
     if (problem) { console.log(`${c.red('FAIL')}  ${t}: ${problem}`); continue; }
     console.log(`${c.green('ok')}    ${t}`);
@@ -207,7 +265,7 @@ async function runInstall() {
   }
   const written = install(targets);
   if (written.length) {
-    console.log(`\n${c.green('Installed.')} Restart your agent, then type ${c.bold('/blueprint')} (Codex: ${c.bold('$blueprint')}) and describe what you want to build.`);
+    console.log(`\n${c.green(`Installed blueprint ${VERSION}.`)} Restart your agent, then type ${c.bold('/blueprint')} (Codex: ${c.bold('$blueprint')}) and describe what you want to build.`);
   }
 }
 
@@ -226,23 +284,67 @@ async function runUninstall() {
   console.log(c.green('Removed.') + c.dim(` Backups, if any, stay in ${path.join(STATE_DIR, 'backups')}.`));
 }
 
-function runDoctor() {
+async function runUpdate(latest) {
+  if (!exists(path.join(SRC, 'SKILL.md'))) { console.error(c.red(`Skill source not found at ${SRC}`)); process.exit(1); }
+  const paths = readManifest();
+  if (!paths.length) { console.log(`Nothing was installed by blueprint-skill yet. Run ${c.bold('npx blueprint-skill')} to install.`); return; }
+  if (latest && cmpVersion(VERSION, latest) < 0) {
+    console.log(`${c.yellow('note')}  this installer is ${VERSION} but ${latest} is published. To get ${latest}, run ${c.bold(UPDATE_CMD)}`);
+    console.log(c.dim('      (plain `npx blueprint-skill` can reuse an old cached copy; @latest forces the newest)'));
+  }
+  const targets = [];
+  console.log(`\n${c.bold(`Update to blueprint ${VERSION}`)}`);
+  for (const p of paths) {
+    if (!exists(p) || isSymlink(p)) { console.log(`  ${p}  ${c.dim('missing or a symlink — skipped')}`); continue; }
+    const v = installedVersion(p);
+    if (v && cmpVersion(v, VERSION) === 0 && !verify(p)) { console.log(`  ${p}  ${c.green(`already ${VERSION}`)}`); continue; }
+    console.log(`  ${p}  ${c.yellow(`${v || 'unknown version'} → ${VERSION}`)}`);
+    targets.push(p);
+  }
+  if (!targets.length) { console.log(`\n${c.green('Already up to date.')}`); return; }
+  if (flags.dryRun) { console.log(c.dim('\ndry run — nothing written')); return; }
+  if (!flags.yes) {
+    if (!process.stdin.isTTY) { console.error('No TTY; pass --yes to update without a prompt.'); process.exit(2); }
+    const ans = (await ask('\nProceed? [y/N] ')).toLowerCase();
+    if (ans !== 'y' && ans !== 'yes') { console.log('Aborted.'); return; }
+  }
+  console.log('');
+  const written = install(targets);
+  if (written.length) console.log(`\n${c.green(`Updated ${written.length} cop${written.length === 1 ? 'y' : 'ies'} to blueprint ${VERSION}.`)} Restart your agent to load it.`);
+}
+
+function runDoctor(latest) {
+  console.log(`\n${c.bold('Versions')}`);
+  console.log(`  installer        ${VERSION}`);
+  console.log(`  latest on npm    ${latest || c.dim('unknown (offline or check disabled)')}`);
   console.log(`\n${c.bold('Agents on this machine')}`);
   for (const a of AGENTS) console.log(`  ${a.label.padEnd(26)} ${detected(a) ? c.green('detected') : c.dim('not found')}`);
   console.log(`\n${c.bold('blueprint copies')}`);
+  let stale = false;
   const candidates = new Set([SHARED_DIR, ...AGENTS.map((a) => path.join(HOME, ...a.target))].map((d) => path.join(d, SKILL_NAME)));
   for (const t of candidates) {
     if (!exists(t)) continue;
     const problem = verify(t);
     const managed = readManifest().includes(t);
-    console.log(`  ${t}  ${problem ? c.red(problem) : c.green('ok')} ${managed ? '' : c.yellow('(not in manifest — unmanaged)')}`);
+    const v = installedVersion(t);
+    const newest = latest && cmpVersion(latest, VERSION) > 0 ? latest : VERSION;
+    const vNote = !v ? c.yellow('version unknown') : cmpVersion(v, newest) < 0 ? c.yellow(`${v}, outdated`) : c.green(v);
+    if (!v || cmpVersion(v, newest) < 0) stale = true;
+    console.log(`  ${t}  ${problem ? c.red(problem) : c.green('ok')}  ${vNote} ${managed ? '' : c.yellow('(not in manifest — unmanaged)')}`);
   }
+  // When this installer is newer than npm (a local checkout), @latest would go backwards.
+  const cmd = latest && cmpVersion(latest, VERSION) > 0 ? UPDATE_CMD : `npx blueprint-skill@${VERSION} update`;
+  if (stale) console.log(`\n  To update every copy in the manifest, run: ${c.bold(cmd)}`);
   console.log('');
 }
 
 (async () => {
+  if (flags.version) return console.log(VERSION);
   if (flags.help) return help();
-  if (command === 'uninstall') return runUninstall();
-  if (command === 'doctor') return runDoctor();
-  return runInstall();
+  const latestP = fetchLatest(); // runs while the user reads the menu or plan
+  if (command === 'doctor') return runDoctor(await latestP);
+  if (command === 'update') return runUpdate(await latestP);
+  if (command === 'uninstall') await runUninstall();
+  else await runInstall();
+  newerNotice(await latestP);
 })().catch((e) => { console.error(c.red(e.message)); process.exit(1); });

@@ -1,31 +1,32 @@
 # Interview track 1 — Requirements
 
 ## Contents
-- Batch rules (apply to all three tracks)
+- Interview rules (apply to all three tracks)
 - Opening: interpretations
 - Question bank by area
 - Follow-up triggers
 - Simple-mode selection
 
-## Batch rules
+## Interview rules
 
 1. **Recon before asking.** Anything the repository, manifests, docs, git log or environment can answer is never asked. State what you found instead ("I see Express + node:test; I'll keep both").
-2. **One numbered batch per track.** Advanced: 8–15 questions. Simple: this track contributes 5–7 questions to the single combined batch (see Simple-mode selection).
-3. **Every question has three lines:**
+2. **One question at a time, never a list.** Each message contains exactly one question and ends there; wait for the reply. Do not number the questions in advance, do not preview what comes next, do not ask "anything else?" in the same message. Advanced: 8–15 questions per track. Simple: this track contributes 5–7 questions to the single combined sequence (see Simple-mode selection). Show progress as a few words ("Requirements, 3 of ~12").
+3. **Every question message has three lines** (plus the progress tag):
    ```
+   Requirements, 4 of ~12
    Q4. Who can see a note shared by public link?
        Why it matters: decides whether link previews can include content and whether links need expiry.
        Recommended: anyone with the link, read-only, no preview content, link revocable by owner.
    ```
-4. **Answer forms accepted:** per number (`Q4: anyone, with preview`), `all defaults`, `all defaults except …`, or free text. Any value the user did not state in their own words — unanswered, "all defaults", "your call" — takes the Recommended value and is tagged `[inferred]`. When the user gives a number different from your Recommended one, theirs wins; if you still need headroom, record it as a Ruling, not as their requirement.
-5. **Trim priority** when the bank yields more than the cap: scope > security/privacy > UX > technical. Trimmed questions become `## Assumptions` entries with their Recommended value, tagged `[inferred]`.
-6. **Record immediately.** After each reply, write the entries to the track file and append `Q → A` lines to `## Clarifications / ### Session <date>` before asking anything else.
-7. **Follow-ups** are a separate, smaller batch (max 2 rounds per track in advanced, 1 in simple) and only for answers that are vague, contradictory, untestable, or that opened a new area. Unanswered follow-ups take the Recommended value and are listed at Gate 1 — except CRITICAL ones (see `validation.md › Severity and routing`), which are never defaulted.
+4. **Answer forms accepted:** free text, `ok` / `default` / `your call` (take Recommended for this question), or `defaults for the rest of this track` (take Recommended for every remaining question in the track and stop asking). Any value the user did not state in their own words takes the Recommended value and is tagged `[inferred]`. If a reply answers a later question too, record both and skip the later one. When the user gives a number different from your Recommended one, theirs wins; if you still need headroom, record it as a Ruling, not as their requirement.
+5. **Order and cap.** Ask in priority order scope > security/privacy > UX > technical, choosing each next question by what the previous answer changed, until the cap or until every area is covered. Questions never asked become `## Assumptions` entries with their Recommended value, tagged `[inferred]`.
+6. **Record immediately.** After each reply, write the entries to the track file and append the `Q → A` line to `## Clarifications / ### Session <date>` before asking the next question.
+7. **Follow-ups** are extra single questions asked after the track's main questions (max 2 per track in advanced, 1 in simple) and only for answers that are vague, contradictory, untestable, or that opened a new area. Unanswered follow-ups take the Recommended value and are listed at Gate 1 — except CRITICAL ones (see `validation.md › Severity and routing`), which are never defaulted.
 8. **Non-goals are not requirements.** Things the user puts out of scope go under `## Non-goals` without an R-ID; only positive, testable statements get R-IDs.
 
 ## Opening: interpretations
 
-Before the batch, offer 2–3 readings of the request, one line each, and let the user pick or correct. Example for "notes app with sharing":
+Before the first requirement question, offer 2–3 readings of the request, one line each, and let the user pick or correct. Example for "notes app with sharing":
 
 ```
 I read this three ways — which is closest?
@@ -84,4 +85,4 @@ Ask a follow-up when an answer:
 
 ## Simple-mode selection
 
-In simple mode the three tracks are merged into one batch of 10–15 questions, asked after the interpretation pick (which is always its own question). From this track take, in order until the per-track share (5–7) is filled: primary journey, out of scope, permissions, the one anti-goal, failure behaviour, data retention, success metric. Everything else is an `[inferred]` assumption.
+In simple mode the three tracks are merged into one sequence of 10–15 questions, asked one at a time after the interpretation pick (which is always its own question). From this track take, in order until the per-track share (5–7) is filled: primary journey, out of scope, permissions, the one anti-goal, failure behaviour, data retention, success metric. Everything else is an `[inferred]` assumption.

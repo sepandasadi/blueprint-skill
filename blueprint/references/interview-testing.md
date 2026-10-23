@@ -1,6 +1,6 @@
 # Interview track 3 — Testing
 
-Batch rules are in `interview-requirements.md` and apply here unchanged. Every question cites the R- and D-IDs it covers; the batch ends only when every R-ID has at least one planned T-ID.
+Interview rules (one question per message) are in `interview-requirements.md` and apply here unchanged. Every question cites the R- and D-IDs it covers; the track ends only when every R-ID has at least one planned T-ID.
 
 ## Contents
 - Recon checklist
@@ -18,7 +18,7 @@ Batch rules are in `interview-requirements.md` and apply here unchanged. Every q
 
 ## Opening: coverage proposal
 
-Show a draft table `R-ID → proposed test level (unit / integration / e2e)` from the requirements, then ask the batch to confirm or move items. In advanced mode also show the gaps the user must accept explicitly.
+Show a draft table `R-ID → proposed test level (unit / integration / e2e)` from the requirements, then ask, one question at a time, to confirm or move items. In advanced mode also show the gaps the user must accept explicitly.
 
 ## Question bank by area
 
@@ -49,4 +49,4 @@ Show a draft table `R-ID → proposed test level (unit / integration / e2e)` fro
 
 ## Simple-mode selection
 
-Contribute 2–3 questions to the combined batch: which flows need e2e, whether TDD is required, and the one negative/security test that matters most. Everything else: recommended default, `[inferred]`.
+Contribute 2–3 questions to the combined sequence: which flows need e2e, whether TDD is required, and the one negative/security test that matters most. Everything else: recommended default, `[inferred]`.

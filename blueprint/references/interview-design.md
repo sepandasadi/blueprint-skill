@@ -1,6 +1,6 @@
 # Interview track 2 — System design
 
-Batch rules are in `interview-requirements.md` and apply here unchanged. Every question cites the R-IDs it affects.
+Interview rules (one question per message) are in `interview-requirements.md` and apply here unchanged. Every question cites the R-IDs it affects.
 
 ## Contents
 - Recon checklist (answer these yourself first)
@@ -22,7 +22,7 @@ Read and record in `design.md › Context and boundaries`:
 
 ## Opening: proposed architecture
 
-Lead the batch with a 5–8 line proposal grounded in recon ("Add a `billing` module beside `account`; Stripe is the source of truth; we cache a billing summary row per user, written only by the webhook handler"). The questions then test that proposal instead of starting from nothing.
+Lead the track with a 5–8 line proposal grounded in recon ("Add a `billing` module beside `account`; Stripe is the source of truth; we cache a billing summary row per user, written only by the webhook handler"). Then ask the first question as its own message; the questions test that proposal instead of starting from nothing.
 
 ## Question bank by area
 
@@ -67,4 +67,4 @@ Lead the batch with a 5–8 line proposal grounded in recon ("Add a `billing` mo
 
 ## Simple-mode selection
 
-Contribute 3–5 questions to the combined batch: boundaries touched, source of truth for external data, auth/authz model, the single biggest performance target, the one dependency-down behaviour. Everything else: recommended default, `[inferred]`.
+Contribute 3–5 questions to the combined sequence: boundaries touched, source of truth for external data, auth/authz model, the single biggest performance target, the one dependency-down behaviour. Everything else: recommended default, `[inferred]`.
