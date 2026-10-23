@@ -28,10 +28,12 @@ AGENTS=(
   "copilot|VS Code / GitHub Copilot|$HOME/.copilot|$HOME/.copilot/skills|1"
 )
 
-CLIENTS=(); ALL=0; YES=0; DRY=0; NATIVE=0; PROJECT=""; CMD="install"
+CLIENTS=(); ALL=0; YES=0; DRY=0; NATIVE=0; PROJECT=""; CMD="install"; MODE="auto"; INIT_DIR=""
 while [[ $# -gt 0 ]]; do
   case "$1" in
-    install|uninstall|doctor|update) CMD="$1" ;;
+    install|uninstall|doctor|update|init) CMD="$1" ;;
+    --mode) MODE="$2"; shift ;;
+    --mode=*) MODE="${1#*=}" ;;
     -c|--client) CLIENTS+=("$2"); shift ;;
     --client=*) CLIENTS+=("${1#*=}") ;;
     -a|--all) ALL=1 ;;
@@ -49,6 +51,8 @@ install.sh $VERSION — install the "blueprint" skill (bash fallback for npx blu
   ./install.sh update [-n] [-y]     reinstall this version into every folder in the manifest
   ./install.sh uninstall [-n] [-y]
   ./install.sh doctor               installed copies and their versions
+  ./install.sh init [dir] [--mode auto|simple|advanced|ask] [-n]
+                                    write a starter docs/plans/CONSTITUTION.md (never overwrites)
   ./install.sh --version
 
 Every run checks npm for a newer version; BLUEPRINT_SKILL_NO_UPDATE_CHECK=1 turns it off.
@@ -56,7 +60,8 @@ Every run checks npm for a newer version; BLUEPRINT_SKILL_NO_UPDATE_CHECK=1 turn
 ids: claude, codex, cursor, antigravity, antigravity-cli, copilot
 USAGE
       exit 0 ;;
-    *) echo "Unknown argument: $1" >&2; exit 2 ;;
+    -*) echo "Unknown argument: $1" >&2; exit 2 ;;
+    *) if [[ "$CMD" == init && -z "$INIT_DIR" ]]; then INIT_DIR="$1"; else echo "Unknown argument: $1" >&2; exit 2; fi ;;
   esac
   shift
 done
@@ -195,6 +200,20 @@ do_uninstall() {
   rm -f "$MANIFEST"; echo "Removed. Backups, if any, stay in $STATE_DIR/backups."
 }
 
+# Starter constitution for a repository. Project content, so it is not in the manifest
+# and uninstall leaves it alone.
+do_init() {
+  case "$MODE" in auto|simple|advanced|ask) ;; *) echo "--mode must be one of: auto, simple, advanced, ask" >&2; exit 2 ;; esac
+  local dir="${INIT_DIR:-.}"; [[ -d "$dir" ]] || { echo "No such directory: $dir" >&2; exit 2; }
+  local target; target="$(cd "$dir" && pwd)/docs/plans/CONSTITUTION.md"
+  if [[ -e "$target" ]]; then echo "exists $target - left untouched. Edit it, or delete it and run init again."; return 0; fi
+  echo; echo "Plan"; echo "  $target  new  (mode: $MODE)"; echo
+  [[ $DRY -eq 1 ]] && { echo "dry run - nothing written"; return 0; }
+  mkdir -p "$(dirname "$target")"
+  sed -e "s/<YYYY-MM-DD>/$(date +%Y-%m-%d)/g" -e "s/^mode: auto$/mode: $MODE/" "$SRC/assets/CONSTITUTION.md" > "$target"
+  echo "ok     $target"; echo "Add your MUST / SHOULD principles; blueprint checks every plan against them."
+}
+
 do_doctor() {
   local latest="$1" newest="$VERSION" stale=0 v vnote
   [[ -n "$latest" && "$(cmp_version "$latest" "$VERSION")" == "1" ]] && newest="$latest"
@@ -223,7 +242,7 @@ do_doctor() {
 case "$CMD" in
   doctor) do_doctor "$(fetch_latest)" ;;
   update) do_update "$(fetch_latest)" ;;
-  install|uninstall)
+  install|uninstall|init)
     trap 'newer_notice "$(fetch_latest)"' EXIT   # do_install/do_uninstall may exit early
-    if [[ "$CMD" == install ]]; then do_install; else do_uninstall; fi ;;
+    if [[ "$CMD" == install ]]; then do_install; elif [[ "$CMD" == init ]]; then do_init; else do_uninstall; fi ;;
 esac
