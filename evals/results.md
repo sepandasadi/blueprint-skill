@@ -119,7 +119,7 @@ Also verified from the npm registry: `npx blueprint-skill@0.1.0` help, dry run, 
 |---|---|---|---|
 | Claude Code (CLI) | yes — listed in the session's skill listing from `~/.claude/skills` | not run to completion | API connection refused on this machine |
 | Claude Code (agent in desktop app) | yes | **yes** — given only "help me build a habit tracker", it loaded `blueprint`, inspected the empty repo, and stopped at the mode question recommending advanced with reasons; no files written | |
-| Gemini CLI | yes — `gemini skills list` shows `blueprint [Enabled]` from `~/.agents/skills` | not run | CLI not signed in |
-| OpenAI Codex | not verified | not run | company gateway unreachable ("waiting for network") |
-| Cursor agent CLI | not verified | not run | CLI not signed in |
+| Gemini CLI | yes — `gemini skills list` shows `blueprint [Enabled]` from `~/.agents/skills` | not run | "Invalid auth method selected" even with `GEMINI_DEFAULT_AUTH_TYPE=gemini-api-key`; settings.json has no auth section |
+| OpenAI Codex (0.154, `gpt-5.5` via company gateway) | yes — read `~/.agents/skills/blueprint/SKILL.md` | **yes** — loaded `blueprint` unprompted, read `harness-map.md` to detect the harness, noted the empty repo, stopped at "Simple or advanced?" recommending advanced with a reason; no files written | needed `-m gpt-5.5 -c web_search=disabled` because the gateway rejects the default model stream and the web-search tool field |
+| Cursor agent CLI | not verified | not run | `cursor-agent status` and `agent status` both report not logged in (the Cursor app login does not carry over) |
 | VS Code Copilot, Antigravity | not verified | not run | no headless mode; manual check needed |
