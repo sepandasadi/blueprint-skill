@@ -21,7 +21,7 @@
     <text x="16" y="24" class="n">PHASE 1</text>
     <text x="16" y="50" class="t">Interview</text>
     <text x="16" y="72" class="s">3 tracks · 8–15 questions</text>
-    <text x="16" y="90" class="s">per batch · recommended defaults</text>
+    <text x="16" y="90" class="s">one at a time · recommended</text>
   </g>
   <path class="l" d="M240,150 H268"/>
   <g transform="translate(270,100)">

@@ -43,7 +43,7 @@ Deliberate departure: superpowers forbids parallel implementers. blueprint allow
 |---|---|---|
 | Questions with a Recommended option and a "why it matters" line | `templates/commands/clarify.md` | three-line question format |
 | Dated `## Clarifications / ### Session` Q → A log | `clarify.md` | every track file |
-| Priority scope > security/privacy > UX > technical; trimmed items become Assumptions | `templates/commands/specify.md` | batch trim rule |
+| Priority scope > security/privacy > UX > technical; trimmed items become Assumptions | `templates/commands/specify.md` | question cap and Assumptions rule |
 | Six-pass analysis with CRITICAL–LOW severities and a coverage table | `templates/commands/analyze.md` | `validation.md › The six passes` |
 | Constitution gate + Complexity Tracking | `templates/plan-template.md` | optional `CONSTITUTION.md`, `plan.md › Constitution check` |
 | `[P]` = no shared files and no unfinished dependencies | `templates/commands/tasks.md` | task line grammar |
@@ -57,7 +57,7 @@ Deliberate departure: superpowers forbids parallel implementers. blueprint allow
 | Closing pass grading every requirement answered / partial / unresolved | `SKILL.md` | Phase 7 final report |
 
 ## Added by blueprint
-- Three-track interview in batches with recommended defaults.
+- Three-track interview, one question at a time, each with a recommended default.
 - Cross-track traceability matrix as a hard precondition for planning.
 - Dedicated bug / performance / security review passes over the plan, before code.
 - 2–4 implementation plans by exclusive file ownership, each with Review log and Progress log; parallel implementers with an orchestrator-only commit policy.

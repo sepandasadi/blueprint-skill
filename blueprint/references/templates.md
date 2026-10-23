@@ -60,7 +60,7 @@ Mode: <simple | advanced> · Created: <YYYY-MM-DD> · Status: <draft | validated
 - <measurable outcome, with the number and how it is measured>
 
 ## Assumptions
-- <questions trimmed from the batch and the default taken, each tagged [inferred]>
+- <questions never asked and the default taken, each tagged [inferred]>
 
 ## Clarifications
 ### Session <YYYY-MM-DD>
