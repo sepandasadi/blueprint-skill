@@ -107,7 +107,7 @@ Borrowed with thanks: hard approval gates, builder check and rulings ledger (sup
 | Claude Code | `~/.claude/skills/` | ✅ subagents in one message |
 | OpenAI Codex | `~/.agents/skills/`, `~/.codex/skills/` | ✅ `spawn_agent` (multi-agent on) |
 | Cursor | `~/.agents/skills/`, `~/.cursor/skills/` | sequential |
-| Google Antigravity | `~/.agents/skills/`, `~/.gemini/config/skills/` (CLI: `~/.gemini/antigravity-cli/skills/`) | sequential |
+| Google Antigravity | `~/.gemini/antigravity/skills/` (project: `.agents/skills/`; CLI: `~/.gemini/antigravity-cli/skills/`) | sequential |
 | VS Code / GitHub Copilot | `~/.agents/skills/`, `~/.copilot/skills/` | sequential |
 
 The skill body never names a tool; `blueprint/references/harness-map.md` maps each action to the right tool per agent and degrades to a sequential fallback.

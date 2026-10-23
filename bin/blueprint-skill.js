@@ -30,7 +30,9 @@ const AGENTS = [
   { id: 'claude',          label: 'Claude Code',            detect: ['.claude'],                 target: ['.claude', 'skills'],                   shared: false },
   { id: 'codex',           label: 'OpenAI Codex',           detect: ['.codex'],                  target: ['.codex', 'skills'],                    shared: true },
   { id: 'cursor',          label: 'Cursor',                 detect: ['.cursor'],                 target: ['.cursor', 'skills'],                   shared: true },
-  { id: 'antigravity',     label: 'Google Antigravity IDE', detect: ['.gemini', 'antigravity'],  target: ['.gemini', 'config', 'skills'],         shared: true },
+  // Antigravity loads global skills from {appDataDir}/skills = ~/.gemini/antigravity/skills;
+  // it does not read ~/.agents/skills for global skills, so it always gets its own folder.
+  { id: 'antigravity',     label: 'Google Antigravity',     detect: ['.gemini', 'antigravity'],  target: ['.gemini', 'antigravity', 'skills'],    shared: false },
   { id: 'antigravity-cli', label: 'Antigravity CLI',        detect: ['.gemini', 'antigravity-cli'], target: ['.gemini', 'antigravity-cli', 'skills'], shared: false },
   { id: 'copilot',         label: 'VS Code / GitHub Copilot', detect: ['.copilot'],              target: ['.copilot', 'skills'],                  shared: true },
 ];

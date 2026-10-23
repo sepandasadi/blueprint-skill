@@ -15,7 +15,7 @@ AGENTS=(
   "claude|Claude Code|$HOME/.claude|$HOME/.claude/skills|0"
   "codex|OpenAI Codex|$HOME/.codex|$HOME/.codex/skills|1"
   "cursor|Cursor|$HOME/.cursor|$HOME/.cursor/skills|1"
-  "antigravity|Google Antigravity IDE|$HOME/.gemini/antigravity|$HOME/.gemini/config/skills|1"
+  "antigravity|Google Antigravity|$HOME/.gemini/antigravity|$HOME/.gemini/antigravity/skills|0"
   "antigravity-cli|Antigravity CLI|$HOME/.gemini/antigravity-cli|$HOME/.gemini/antigravity-cli/skills|0"
   "copilot|VS Code / GitHub Copilot|$HOME/.copilot|$HOME/.copilot/skills|1"
 )

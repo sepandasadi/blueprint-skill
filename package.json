@@ -1,6 +1,6 @@
 {
   "name": "blueprint-skill",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Blueprint: a cross-IDE AI agent skill (Claude Code, Codex, Cursor, Antigravity, VS Code Copilot) that interviews you in detail, validates requirements against system design and testing, writes a plan, reviews it for bugs, performance and security, gets your approval, splits it into parallel implementation plans and builds them.",
   "keywords": [
     "agent-skills",

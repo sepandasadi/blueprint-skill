@@ -16,7 +16,7 @@ Look at the tools you actually have, in this order:
 |---|---|
 | `Agent` (often with `AskUserQuestion`, `TodoWrite` or `TaskCreate`, not always) | Claude Code |
 | `spawn_agent`, `wait_agent` | Codex (multi-agent on) |
-| `invoke_subagent`, `write_to_file` with artifacts | Antigravity |
+| `invoke_subagent`, `write_to_file` with artifacts | Antigravity (global skills live in `~/.gemini/antigravity/skills/`, project skills in `.agents/skills/`) |
 | a skill tool and "ask questions" tool but no subagent spawner | Cursor |
 | `runSubagent`, or skills with `context: fork` only | VS Code / GitHub Copilot |
 | none of the above | generic: sequential, chat-only |
