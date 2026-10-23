@@ -1,0 +1,35 @@
+# Mirrors each release to GitHub Packages so it appears in the repository's
+# "Packages" sidebar. The npmjs.com package stays `blueprint-skill`; GitHub
+# Packages requires an owner scope, so the mirror is `@sepandasadi/blueprint-skill`.
+name: Publish to GitHub Packages
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          registry-url: https://npm.pkg.github.com
+          scope: '@sepandasadi'
+      - name: Scope the package name for GitHub Packages
+        run: |
+          npm pkg set name=@sepandasadi/blueprint-skill
+          npm pkg set publishConfig.registry=https://npm.pkg.github.com
+          npm pkg delete publishConfig.access
+      - name: Check the package contents
+        run: npm pack --dry-run
+      - name: Publish
+        run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
