@@ -12,6 +12,7 @@
  *   npx blueprint-skill uninstall       remove exactly what a previous run wrote
  *   npx blueprint-skill doctor          show what is installed where, and whether it is current
  *   npx blueprint-skill@latest update   reinstall the latest version into every folder in the manifest
+ *   npx blueprint-skill init [dir]      write a starter docs/plans/CONSTITUTION.md into a repository
  *
  * Every run checks npm for a newer version (2 s timeout, silent when offline).
  * Turn it off with BLUEPRINT_SKILL_NO_UPDATE_CHECK=1.
@@ -51,11 +52,15 @@ const SHARED_DIR = path.join(HOME, '.agents', 'skills');
 
 // ---------- args ----------
 const argv = process.argv.slice(2);
-const flags = { client: [], all: false, yes: false, dryRun: false, native: false, project: null, help: false };
+const MODES = ['auto', 'simple', 'advanced', 'ask'];
+const flags = { client: [], all: false, yes: false, dryRun: false, native: false, project: null, help: false, mode: 'auto', dir: null };
 let command = 'install';
 for (let i = 0; i < argv.length; i++) {
   const a = argv[i];
-  if (a === 'install' || a === 'uninstall' || a === 'doctor' || a === 'update') command = a;
+  if (a === 'install' || a === 'uninstall' || a === 'doctor' || a === 'update' || a === 'init') command = a;
+  else if (command === 'init' && !a.startsWith('-') && !flags.dir) flags.dir = path.resolve(a);
+  else if (a === '--mode') flags.mode = argv[++i];
+  else if (a.startsWith('--mode=')) flags.mode = a.split('=')[1];
   else if (a === '--client' || a === '-c') flags.client.push(argv[++i]);
   else if (a.startsWith('--client=')) flags.client.push(a.split('=')[1]);
   else if (a === '--all' || a === '-a') flags.all = true;
@@ -87,12 +92,15 @@ Usage:
   npx blueprint-skill doctor                show detected agents, installed copies and their versions
   npx blueprint-skill@latest update [-n] [-y]
                                             reinstall the latest version into every folder a previous run wrote
+  npx blueprint-skill init [dir] [--mode <m>] [-n]
+                                            write a starter docs/plans/CONSTITUTION.md (never overwrites)
 
 Options:
   -c, --client <id>   one of: ${AGENTS.map((a) => a.id).join(', ')} (repeatable)
   -a, --all           every agent detected on this machine
   -p, --project <dir> install into a repository (.agents/skills, .claude/skills, .github/skills)
       --native        also write each agent's native folder, not just the shared ~/.agents/skills
+      --mode <m>      init only: default mode, one of ${MODES.join(', ')} (default auto)
   -n, --dry-run       print the plan and exit
   -y, --yes           skip the confirmation prompt
   -v, --version       print the installer version
@@ -313,6 +321,23 @@ async function runUpdate(latest) {
   if (written.length) console.log(`\n${c.green(`Updated ${written.length} cop${written.length === 1 ? 'y' : 'ies'} to blueprint ${VERSION}.`)} Restart your agent to load it.`);
 }
 
+// Starter constitution for a repository. Project content, so it is not in the manifest
+// and uninstall leaves it alone.
+function runInit() {
+  if (!MODES.includes(flags.mode)) { console.error(c.red(`--mode must be one of: ${MODES.join(', ')}`)); process.exit(2); }
+  const src = path.join(SRC, 'assets', 'CONSTITUTION.md');
+  const target = path.join(flags.dir || process.cwd(), 'docs', 'plans', 'CONSTITUTION.md');
+  if (exists(target)) { console.log(`${c.yellow('exists')} ${target} — left untouched. Edit it, or delete it and run init again.`); return; }
+  const d = new Date();
+  const today = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  const body = fs.readFileSync(src, 'utf8').replace(/<YYYY-MM-DD>/g, today).replace(/^mode: auto$/m, `mode: ${flags.mode}`);
+  console.log(`\n${c.bold('Plan')}\n  ${target}  ${c.green('new')}  ${c.dim(`(mode: ${flags.mode})`)}\n`);
+  if (flags.dryRun) { console.log(c.dim('dry run — nothing written')); return; }
+  fs.mkdirSync(path.dirname(target), { recursive: true });
+  fs.writeFileSync(target, body);
+  console.log(`${c.green('ok')}    ${target}\nAdd your MUST / SHOULD principles; blueprint checks every plan against them.`);
+}
+
 function runDoctor(latest) {
   console.log(`\n${c.bold('Versions')}`);
   console.log(`  installer        ${VERSION}`);
@@ -344,7 +369,8 @@ function runDoctor(latest) {
   const latestP = fetchLatest(); // runs while the user reads the menu or plan
   if (command === 'doctor') return runDoctor(await latestP);
   if (command === 'update') return runUpdate(await latestP);
-  if (command === 'uninstall') await runUninstall();
+  if (command === 'init') runInit();
+  else if (command === 'uninstall') await runUninstall();
   else await runInstall();
   newerNotice(await latestP);
 })().catch((e) => { console.error(c.red(e.message)); process.exit(1); });

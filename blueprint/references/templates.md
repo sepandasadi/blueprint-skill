@@ -204,7 +204,7 @@ W001 → W002 → W007 (<estimate in tasks, not hours>)
 |---|---|---|---|---|---|---|
 
 ## Review log
-<!-- Every entry has all four fields. An entry without "Checked:" is not a review. -->
+<!-- Every review entry has all four fields. An entry without "Checked:" is not a review. Gate lines are one line each. -->
 - Validation cycle 1 of 3 (<YYYY-MM-DD>)
   - Checked: <files re-read from disk>; passes: <names>
   - Findings: <severity counts, then one line each>
@@ -215,6 +215,7 @@ W001 → W002 → W007 (<estimate in tasks, not hours>)
   - Findings: …
   - Fixes: …
   - Remaining: …
+- Gate 1 approved <YYYY-MM-DD>: "<the user's words>"
 
 ## Rulings
 - Ruling: <decision> — <why> — <cost if wrong>
@@ -318,5 +319,7 @@ version: 1.0.0 · ratified: <YYYY-MM-DD> · last amended: <YYYY-MM-DD>
 
 ## Defaults
 quiz: <off | on>
-mode: <simple | advanced | ask>
+mode: <auto | simple | advanced | ask>
 ```
+
+`mode: auto` (or no line) lets the skill choose and say so; `ask` makes it ask the mode question and wait. A ready-to-edit copy is in `assets/CONSTITUTION.md`; `npx blueprint-skill init` writes it to `docs/plans/CONSTITUTION.md` with today's date.

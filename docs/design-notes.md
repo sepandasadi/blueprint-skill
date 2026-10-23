@@ -63,3 +63,4 @@ Deliberate departure: superpowers forbids parallel implementers. blueprint allow
 - 2–4 implementation plans by exclusive file ownership, each with Review log and Progress log; parallel implementers with an orchestrator-only commit policy.
 - Simple / advanced modes that change depth, never gates.
 - One SKILL.md for five harnesses plus an interactive installer with no runtime dependencies.
+- Shortcuts that remove round-trips without removing checks: the mode is chosen and announced instead of asked; a brief the user already has answers questions like recon does; `defaults for everything` ends the interview but not validation or the gates; `status` reads the ledgers without re-verifying; `init` writes a starter constitution.

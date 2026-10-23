@@ -1,6 +1,6 @@
 {
   "name": "blueprint-skill",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Blueprint: a cross-IDE AI agent skill (Claude Code, Codex, Cursor, Antigravity, VS Code Copilot) that interviews you in detail, validates requirements against system design and testing, writes a plan, reviews it for bugs, performance and security, gets your approval, splits it into parallel implementation plans and builds them.",
   "keywords": [
     "agent-skills",
@@ -50,7 +50,7 @@
     "node": ">=18"
   },
   "scripts": {
-    "test": "node bin/blueprint-skill.js --dry-run --all && bash install.sh --dry-run --all",
+    "test": "node bin/blueprint-skill.js --dry-run --all && bash install.sh --dry-run --all && node bin/blueprint-skill.js init --dry-run && bash install.sh init --dry-run",
     "doctor": "node bin/blueprint-skill.js doctor"
   },
   "publishConfig": {

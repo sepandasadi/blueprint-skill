@@ -57,9 +57,23 @@ Model tier: standard for implementers, most capable for reviewers (how to set it
 2. Convergence pass (`review-checklists.md › Convergence pass`), appended to `plan.md`. Loop fixes through the owning plan (re-dispatch or do it yourself), at most 3 passes.
 3. Final report to the user: per-requirement grade (answered / partial / unresolved), every `Ruling:` verbatim, commits made, test output, anything `DONE_WITH_CONCERNS`.
 
+## Status report
+
+Read-only: no edits, no ledger line, no git or test commands. Folders: the one named, else every folder in `docs/plans/` whose `plan.md` status is not `converged`, newest first. For each, at most 8 lines:
+
+```
+docs/plans/2026-10-20-stripe-billing — advanced · implementing
+Gates: 1 approved 2026-10-20 · 2 approved 2026-10-21
+impl-01 done (W001–W004) · impl-02 in progress, next W012 · impl-03 waiting on impl-02 W013
+Open: 1 BLOCKED (W013), 0 DRIFT, 0 DONE_WITH_CONCERNS
+Next: say "continue" to resume at impl-02 W012
+```
+
+Phase: `plan.md` status `draft` → interview (count the `Q → A` lines per track: `requirements done, design 3 of ~10`) or validation; `validated` → planning and plan review (cycles in the Review log); `reviewed` → waiting at Gate 1; `approved` → split and deep review, then Gate 2; `implementing` → building; `converged` → done. Where the status lags, the files decide: `impl-NN.md` files mean the split happened, a `START` line means building began. Gate dates come from the `Gate N approved` lines in the Review log; plans written before those lines existed have none, so say `date not recorded` rather than guessing. The `Next:` line names what the user types: the answer to a pending gate question, or `continue`. Say that the report reflects the files, not a fresh check; `continue` re-verifies.
+
 ## Resume procedure
 
-Triggered when the artifact folder already exists or the user says to continue.
+Triggered when the artifact folder already exists or the user says to continue. Pick the folder first (SKILL.md › Resume step 0).
 1. Read `plan.md` status and every `impl-NN.md` Progress log. **Trust the decisions** (Rulings, confirmed entries); do not reopen them. Write a `RESUME` line naming the task you will resume at.
 2. **Re-verify facts:** `git status`, `git log` since the last ledger timestamp, run each in-progress plan's Verification block. If the runner cannot run, say why in the `RESUME` line and use `complete (unverified: …)` for tasks you finish.
 3. Record a `DRIFT` line for each of:

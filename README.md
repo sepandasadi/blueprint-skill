@@ -37,6 +37,7 @@ npx blueprint-skill --dry-run                   # show the plan, write nothing
 npx blueprint-skill doctor                      # what is installed where, and which version
 npx blueprint-skill@latest update               # update every copy a previous install wrote
 npx blueprint-skill uninstall                   # remove exactly what was installed
+npx blueprint-skill init                        # write a starter docs/plans/CONSTITUTION.md in this repo
 
 npm i -g blueprint-skill && blueprint-skill     # persistent CLI
 npx skills add sepandasadi/blueprint-skill      # via the skills.sh installer
@@ -52,7 +53,19 @@ Then restart your agent and type:
 /blueprint Build me a notes app with sharing
 ```
 
-(`$blueprint` in Codex.) Add `simple` or `advanced` to pick a mode, or let it recommend one.
+(`$blueprint` in Codex.) It picks simple or advanced mode for you and says which in one line; reply `advanced` or `simple` to switch, or put the word in the command.
+
+### Shortcuts
+
+| You type | What happens |
+|---|---|
+| `/blueprint from docs/idea.md` | Starts from a brief, spec or PRD you already have (a path, an attached file, or pasted text). Everything the brief answers is recorded with the brief as its source; you are asked only about what it leaves open. |
+| `default` | Takes the recommended answer for this question. |
+| `defaults for the rest of this track` | Takes the recommended answers for the rest of the current track. |
+| `defaults for everything` | Ends the interview and goes straight to validation. Contradictions that matter are still asked about, and Gate 1 tells you how many decisions were defaulted. |
+| `/blueprint status` | Read-only: which phase each plan folder is in, what's blocked, and what to type next. |
+| `continue` | Resumes the unfinished plan folder (asks which one if there are several). |
+| `npx blueprint-skill init` | Writes a starter `docs/plans/CONSTITUTION.md`: your project's MUST / SHOULD rules and a default mode, so you never get asked twice. |
 
 ## Updating
 
@@ -90,13 +103,13 @@ blueprint makes the agent behave like a senior engineer who has been burned befo
 | **7 Build** | One implementer agent per plan, dispatched in parallel where the harness allows (Claude Code, Codex), sequential elsewhere. Implementers never commit; the orchestrator verifies and commits each plan. | Commits per plan, ledger lines per task |
 | **Converge** | Opens the code for every requirement. Checkboxes are claims, not evidence. | A final per-requirement grade |
 
-Lose your context window halfway? **Resume** reads the ledgers, re-verifies `git status` and tests, records drift, and continues from the first unfinished task.
+Lose your context window halfway? **Resume** reads the ledgers, re-verifies `git status` and tests, records drift, and continues from the first unfinished task. Just want to know where things stand? `/blueprint status` reads the same files and changes nothing.
 
 ## Two modes
 
 <p align="center"><img src="docs/assets/modes.svg" alt="Simple mode versus advanced mode comparison" width="100%"></p>
 
-Simple mode collapses the interview into one shorter sequence and the reviews into one pass, and defaults to fewer plans. It still writes every artifact and still stops at both gates. Pick it for a contained feature; pick advanced for a new app or anything touching money, auth or personal data.
+Simple mode collapses the interview into one shorter sequence and the reviews into one pass, and defaults to fewer plans. It still writes every artifact and still stops at both gates. The skill chooses for you after reading the repository: simple for a contained feature, advanced for a new app or anything touching money, auth or personal data. Say the other word to switch. To fix the choice for a repository, set `mode:` in `docs/plans/CONSTITUTION.md` (`auto`, `simple`, `advanced`, or `ask`).
 
 ## What makes it different
 
@@ -140,7 +153,7 @@ docs/plans/2026-10-22-stripe-billing/
 └── impl-02.md
 ```
 
-Optional: `docs/plans/CONSTITUTION.md` with MUST / SHOULD principles. If present, every plan is checked against it and violations need a justified row.
+Optional: `docs/plans/CONSTITUTION.md` with MUST / SHOULD principles and a default mode (`npx blueprint-skill init` writes a starter). If present, every plan is checked against it and violations need a justified row.
 
 ## Repository layout
 
@@ -148,7 +161,8 @@ Optional: `docs/plans/CONSTITUTION.md` with MUST / SHOULD principles. If present
 blueprint/            the skill (this is what gets installed)
   SKILL.md            ~180 lines, harness-neutral
   references/         question banks, templates, validation, review checklists, parallel execution, harness map
-bin/blueprint-skill.js   interactive installer and updater (zero deps)
+  assets/             starter CONSTITUTION.md (what `init` writes)
+bin/blueprint-skill.js   interactive installer, updater and `init` (zero deps)
 install.sh            bash fallback with identical behaviour
 evals/                scenarios, scripted users, fixtures and results used to test the skill itself
 docs/                 design notes and diagrams

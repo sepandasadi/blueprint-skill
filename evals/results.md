@@ -174,3 +174,34 @@ Deviations, none caused by the one-question change:
 - The resume fixture's `npm test` (`node --test test/`) fails on Node 22 before any test runs; the agent recorded `complete (unverified: …)` as the skill says.
 
 Not covered: Codex, Cursor, Gemini CLI (not signed in on this machine), Antigravity and VS Code Copilot (no headless CLI), and Claude Code's `AskUserQuestion` rendering (subagents asked in chat).
+
+## 0.3.0 — shortcuts (2026-10-23)
+
+New behaviour: the mode is chosen and announced instead of asked; `/blueprint from <brief>`; `defaults for everything`; read-only `/blueprint status`; resume picks the folder or asks; `npx blueprint-skill init` writes a starter constitution.
+
+Run in Claude Code through fresh subagents, one user message per turn, scripted answers from `answers.md`, reading the skill from this checkout (not the installed 0.2.0 copy), subagents not allowed (stance-switch reviews). Each scenario ran in its own scratch copy of the fixture, committed to git first so changes could be diffed. Baselines without the skill were not re-run for these scenarios.
+
+| Check | Scenario 4 (brief, Stripe) | Scenario 5 (CSV export, defaults for everything) | Scenario 6 (status) |
+|---|---|---|---|
+| Mode | not asked; `Mode: advanced` line with reason (money, authorization) | not asked; `Mode: advanced` line with reason (export carries email) | — |
+| Messages with more than one question | 0 of 24 | 0 of 3 | — |
+| Brief read before the first question | yes; one line: "From the brief: 6 requirements, 2 design decisions, 0 test items and 4 non-goals" | — | — |
+| Brief entries cited | `## Source brief`, `Grounds: brief, line N`, `Brief → R-01 … R-06; D-01, D-02; Non-goals ×4` in Clarifications | — | — |
+| Questions the brief already answered | none asked | — | — |
+| Interview questions | 8 requirements (incl. the interpretation confirmation), 8 design, 5 testing = 21; scenario 1 from scratch asked about 40 | 2 (interpretation, then the answer that said `defaults for everything`) | — |
+| "Skip the planning" line in the brief | named once as input, not followed; recorded under Source brief | — | — |
+| Wrong codebase claim (Postgres) | corrected from recon in the first message; storage asked as one question about intent | — | — |
+| Planted contradiction | caught as CRITICAL, both brief lines quoted, resolved; the losing line retired with a reason | caught as CRITICAL after `defaults for everything`, both answers quoted, resolved | — |
+| HIGH validation questions | 2 asked (advanced) | none open | — |
+| Gate 1 | `Self-check: passed`, Rulings, `Defaults taken: 41 of 48 decisions are [inferred]`, one question | `Self-check: passed`, Rulings, `Defaults taken: 17 of 22 decisions are [inferred]`, one question | — |
+| Files written | 4 plan files (704 lines), no source | 4 plan files (385 lines), no source | none; `git status` and every file checksum identical before and after |
+| Status report | — | — | 6 lines: folder, `advanced · implementing`, W004 next, impl-02 waiting, open counts, `Next: say "continue"`, and that nothing was re-verified |
+
+Findings and changes:
+- **Gate dates were missing from status.** Scenario 6 reported "Gates: 1 and 2 passed (no approval dates in plan.md)": nothing in the skill recorded a gate approval, and `plan.md` status was only ever set to `validated`. Fix: on each affirmative, append `Gate N approved <date>: "<the user's words>"` to the Review log and set status to `approved` (Gate 1) / `implementing` (Gate 2); set `converged` after convergence; status says `date not recorded` for older plans. Re-run (6b, same fixture with gate lines added): `Gates: 1 approved 2026-10-20 · 2 approved 2026-10-20 (current branch)`, files unchanged. Not yet observed: an agent writing the gate line itself, since scenarios 4 and 5 stopped at Gate 1 with the old text loaded.
+- **Two pass criteria were miscalibrated, not the skill.** Scenario 5 expected `Mode: simple`; the Phase 0 rule sends anything touching personal data to advanced, and the agent applied it with the reason stated. Scenario 4 expected "fewer questions than scenario 2", but scenario 2 ran in simple mode and this run was advanced. Both criteria were rewritten (mode line with a reason; no question the brief answers and fewer than an advanced run from scratch).
+- Scenario 4 re-found that the fixture's `npm test` (`node --test test/`) fails on Node 22 and planned a fix as a Ruling rather than assuming tests pass.
+
+Installer: `init` checked in both `bin/blueprint-skill.js` and `install.sh` — dry run writes nothing, `--mode` is written into the file, an invalid mode exits 2, an existing constitution is left untouched, and both installers produce the same file apart from the mode line.
+
+Not covered: the same harnesses as the previous run (Codex, Cursor, Gemini CLI, Antigravity, VS Code Copilot); resume's folder picker with several unfinished folders; `defaults for everything` in simple mode.
