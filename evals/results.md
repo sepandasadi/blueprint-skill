@@ -92,3 +92,34 @@ Scenario 3 exposed: no ledger word for resuming or for "runner could not run"; n
 Scenario 2 exposed: interpretation pick ambiguous between separate question and batch item; follow-up cap vs mandatory CRITICAL questions; unanswered CRITICAL follow-ups; no home for validation findings or the STRIDE table; `validated` missing from plan statuses; non-goals forced into R-IDs; task-tracking fallback on Claude Code. Fixed: interpretation is always its own question; CRITICAL questions bypass the cap and are never defaulted; `Validation cycle N of 3` in the Review log; `plan.md › Threat model (STRIDE-lite)`; `validated` status; non-goals carry no IDs; tracking falls back to plan.md checkboxes; mode override recorded as a Ruling and repeated once at Gate 1.
 
 Scenario 1 exposed: the `What was checked:` line was skipped even though SKILL.md said a review without it "did not happen" — an omission, not a rationalization, so the fix is structural: every Review log entry in the template now has required `Checked / Findings / Fixes / Remaining` fields and the pre-gate self-check fails on an entry without `Checked:`. Also fixed: time-pressure wording (keep the recommendation, never shrink the batch); re-runs that find nothing are their own cycle; code literals are not placeholders; user-stated numbers beat recommended ones; Claude Code detection keys on `Agent` alone; validation questions are charged to the track they mostly touch.
+
+## Installer and cross-agent checks (2026-10-22, after publishing 0.1.0)
+
+### Installer
+
+Both installers were driven through their interactive menus with `expect` in a throwaway home folder.
+
+| Case | Node (`npx blueprint-skill`) | Bash (`install.sh`) |
+|---|---|---|
+| `a` all detected → confirm | installs `~/.claude` + `~/.agents` | **failed**, then fixed: exited silently when the last listed agent was not installed (`set -e` + loop ending in `detected && …`) |
+| pick numbers + `--native` → decline | correct plan, "Aborted." | correct plan, "Aborted." |
+| `q` / invalid input | "Nothing selected." | "Nothing selected." |
+| `e` everything | adds Antigravity CLI folder | same plan |
+| reinstall over existing | backs up to `~/.blueprint-skill/backups/` | same |
+| target is a symlink | skipped with instructions | skipped |
+| uninstall | removes exactly the manifest paths | same |
+| no terminal, no flags | exits with a message | exits with a message |
+| same flags, both installers | identical target lists | identical target lists |
+
+Also verified from the npm registry: `npx blueprint-skill@0.1.0` help, dry run, `--project` install and uninstall.
+
+### Discovery and auto-trigger per agent
+
+| Agent | Finds the skill | Picks it unprompted and follows it | Note |
+|---|---|---|---|
+| Claude Code (CLI) | yes — listed in the session's skill listing from `~/.claude/skills` | not run to completion | API connection refused on this machine |
+| Claude Code (agent in desktop app) | yes | **yes** — given only "help me build a habit tracker", it loaded `blueprint`, inspected the empty repo, and stopped at the mode question recommending advanced with reasons; no files written | |
+| Gemini CLI | yes — `gemini skills list` shows `blueprint [Enabled]` from `~/.agents/skills` | not run | CLI not signed in |
+| OpenAI Codex | not verified | not run | company gateway unreachable ("waiting for network") |
+| Cursor agent CLI | not verified | not run | CLI not signed in |
+| VS Code Copilot, Antigravity | not verified | not run | no headless mode; manual check needed |
